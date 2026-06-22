@@ -8,10 +8,14 @@ import { useDeckSummaries } from './use-deck-summaries';
 
 /** Lists decks with their total and due-card counts, read live from SQLite. */
 export function DeckSummaryList() {
-  const { decks, loading } = useDeckSummaries();
+  const { decks, loading, error } = useDeckSummaries();
 
   if (loading) {
     return <ActivityIndicator />;
+  }
+
+  if (error) {
+    return <ThemedText type="small">Couldn’t load decks: {error.message}</ThemedText>;
   }
 
   return (
