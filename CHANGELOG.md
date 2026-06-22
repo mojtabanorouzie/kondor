@@ -19,3 +19,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 - Jest test suite (7 tests) running real SQL against in-memory better-sqlite3.
 - Metro/Babel config for Drizzle `.sql` inline imports and web WASM SQLite.
 - Scripts: `test`, `typecheck`, `db:generate`.
+- **Phase 2 — SRS engine:** integrated `ts-fsrs` v5 in `src/services/srs`.
+  `rateCard` (pure) computes the next schedule + review log from a grade;
+  `gradeCard` persists the result and writes a review log. `SrsConfig` exposes
+  retention target, max interval, and fuzz.
+- Added `cards.learning_steps` column for FSRS short-term scheduling (migration 0001).
+- 6 engine tests: state transitions, Again≤Hard≤Good≤Easy interval ordering,
+  lapse counting, purity, and end-to-end persistence.

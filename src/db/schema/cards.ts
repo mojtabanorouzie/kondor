@@ -25,6 +25,8 @@ export const cards = sqliteTable('cards', {
   reps: integer('reps').notNull().default(0),
   /** Times the card was forgotten. */
   lapses: integer('lapses').notNull().default(0),
+  /** FSRS short-term learning step index (which learning/relearning step). */
+  learningSteps: integer('learning_steps').notNull().default(0),
   /** Last review time (epoch ms), if ever reviewed. */
   lastReviewedAt: integer('last_reviewed_at'),
 });

@@ -70,6 +70,8 @@ export interface Card {
   reps: number;
   /** Times the card was forgotten. */
   lapses: number;
+  /** FSRS short-term learning step index. */
+  learningSteps: number;
   /** Last time this card was reviewed (epoch ms), if ever. */
   lastReviewedAt?: number;
 }

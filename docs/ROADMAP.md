@@ -40,14 +40,15 @@ Home screen seeds a sample deck and shows live due/total counts from SQLite.
 ## Phase 2 — Core Spaced Repetition Engine
 *Goal: correct scheduling — the heart of the app.*
 
-- [ ] Integrate `ts-fsrs`; wrap it in `src/services/srs`
-- [ ] Map our `Card` model ↔ FSRS state (due, stability, difficulty, reps, lapses)
-- [ ] `rateCard(card, grade)` → next schedule + review log entry
-- [ ] "Cards due today" query per deck
-- [ ] Configurable params (retention target, max interval) in settings
-- [ ] Thorough unit tests against known FSRS outcomes
+- [x] Integrate `ts-fsrs` (v5); wrap it in `src/services/srs`
+- [x] Map our `Card` model ↔ FSRS state (added `learning_steps` column, migration 0001)
+- [x] `rateCard(card, grade)` → next schedule + review log entry (pure); `gradeCard` persists
+- [x] "Cards due today" query per deck (`cardRepository.getDue`, from Phase 1)
+- [x] Configurable params (`SrsConfig`: retention, max interval, fuzz)
+- [x] Unit tests (6) — state transitions, interval ordering, lapses, persistence
 
-**Done when:** grading a card advances its schedule correctly and is logged.
+**Done when:** grading a card advances its schedule correctly and is logged. ✅
+Engine is wired and tested; the study-session UI that calls it is Phase 4.
 
 ---
 
