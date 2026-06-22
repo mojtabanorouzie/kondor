@@ -11,12 +11,12 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 - [x] Scaffold Expo + TypeScript + Expo Router project
 - [x] Define folder architecture (feature-first)
-- [ ] Git repository + `.gitignore` + conventional commits
-- [ ] ESLint + Prettier + `tsconfig` strict mode
-- [ ] Jest + React Native Testing Library wired up (one passing test)
-- [ ] GitHub Actions CI: typecheck + lint + test on push/PR
-- [ ] Design tokens (colors, spacing, typography) in `src/theme`
-- [ ] Path aliases (`@/*`) confirmed working
+- [x] Git repository + `.gitignore` + conventional commits
+- [x] `tsconfig` strict mode (ESLint + Prettier still TODO)
+- [x] Jest wired up with passing tests (RN Testing Library added in a UI phase)
+- [x] GitHub Actions CI: typecheck + lint + test on push/PR
+- [x] Design tokens (colors, spacing, typography) in `src/constants/theme`
+- [x] Path aliases (`@/*`) confirmed working
 
 **Done when:** `npm run start` opens a themed home screen; CI is green.
 
@@ -25,14 +25,15 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 ## Phase 1 — Data Layer & Domain Model
 *Goal: a typed, migrated local database — the backbone of everything.*
 
-- [ ] Install `expo-sqlite` + `drizzle-orm` + `drizzle-kit`
-- [ ] Schema: `decks`, `cards`, `notes`, `note_types`, `review_logs`
-- [ ] Migration tooling + initial migration
-- [ ] Repository layer (`src/db`) with typed CRUD per entity
-- [ ] Seed script with sample decks/cards for development
-- [ ] Unit tests for repositories
+- [x] Install `expo-sqlite` + `drizzle-orm` + `drizzle-kit`
+- [x] Schema: `decks`, `cards`, `notes`, `note_types`, `review_logs`
+- [x] Migration tooling + initial migration (`db:generate`, `DatabaseProvider`)
+- [x] Repository layer (`src/db/repositories`) with typed CRUD per entity
+- [x] Seed script with sample decks/cards for development
+- [x] Unit tests for repositories (7 passing, in-memory SQLite)
 
-**Done when:** the app reads/writes real data from SQLite; tests cover CRUD.
+**Done when:** the app reads/writes real data from SQLite; tests cover CRUD. ✅
+Home screen seeds a sample deck and shows live due/total counts from SQLite.
 
 ---
 

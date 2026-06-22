@@ -1,0 +1,57 @@
+import { and, eq, lte } from 'drizzle-orm';
+
+import type { Database } from '../client';
+import { cards, type CardRow, type NewCardRow } from '../schema';
+import { uuid } from '@/utils/id';
+
+export type CreateCardInput = Omit<NewCardRow, 'id'>;
+
+export const cardRepository = {
+  async create(db: Database, input: CreateCardInput): Promise<CardRow> {
+    const [created] = await db
+      .insert(cards)
+      .values({ id: uuid(), ...input })
+      .returning();
+    return created;
+  },
+
+  async getByDeck(db: Database, deckId: string): Promise<CardRow[]> {
+    return db.select().from(cards).where(eq(cards.deckId, deckId));
+  },
+
+  async getById(db: Database, id: string): Promise<CardRow | undefined> {
+    const [row] = await db.select().from(cards).where(eq(cards.id, id));
+    return row;
+  },
+
+  /** Cards in a deck that are due at or before `now` (epoch ms). */
+  async getDue(
+    db: Database,
+    deckId: string,
+    now: number = Date.now(),
+  ): Promise<CardRow[]> {
+    return db
+      .select()
+      .from(cards)
+      .where(and(eq(cards.deckId, deckId), lte(cards.due, now)))
+      .orderBy(cards.due);
+  },
+
+  /** Persist updated scheduling state after a review. */
+  async update(
+    db: Database,
+    id: string,
+    patch: Partial<CreateCardInput>,
+  ): Promise<CardRow | undefined> {
+    const [row] = await db
+      .update(cards)
+      .set(patch)
+      .where(eq(cards.id, id))
+      .returning();
+    return row;
+  },
+
+  async remove(db: Database, id: string): Promise<void> {
+    await db.delete(cards).where(eq(cards.id, id));
+  },
+};
