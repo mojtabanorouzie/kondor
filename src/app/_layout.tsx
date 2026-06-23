@@ -18,6 +18,7 @@ export default function RootLayout() {
             options={{ title: 'New deck', presentation: 'modal' }}
           />
           <Stack.Screen name="deck/[id]/index" options={{ title: 'Deck' }} />
+          <Stack.Screen name="deck/[id]/study" options={{ title: 'Study' }} />
           <Stack.Screen
             name="deck/[id]/edit"
             options={{ title: 'Edit deck', presentation: 'modal' }}

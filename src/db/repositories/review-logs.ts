@@ -29,4 +29,9 @@ export const reviewLogRepository = {
       .where(eq(reviewLogs.cardId, cardId))
       .orderBy(desc(reviewLogs.reviewedAt));
   },
+
+  /** Remove a single log (used to undo a review). */
+  async remove(db: Database, id: string): Promise<void> {
+    await db.delete(reviewLogs).where(eq(reviewLogs.id, id));
+  },
 };

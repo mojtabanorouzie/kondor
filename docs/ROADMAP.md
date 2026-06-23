@@ -73,15 +73,17 @@ Component-level (render) tests await a jest-expo project in a later phase.
 ## Phase 4 — Study Session
 *Goal: the daily review loop that users live in.*
 
-- [ ] Study screen: show front → reveal back
-- [ ] Grade buttons (Again / Hard / Good / Easy) wired to FSRS
-- [ ] Session queue (new + due, respecting daily limits)
-- [ ] Progress indicator + end-of-session summary
-- [ ] Undo last answer
-- [ ] Smooth animations (Reanimated) + haptics
-- [ ] Keyboard shortcuts on web
+- [x] Study screen: show front → reveal back
+- [x] Grade buttons (Again / Hard / Good / Easy) wired to FSRS, with next-interval previews
+- [x] Session queue (new + due, respecting per-deck daily limits)
+- [x] Progress indicator + end-of-session summary
+- [x] Undo last answer (restores card + removes review log)
+- [x] Keyboard shortcuts on web (space reveals, 1–4 grade, u/z undo)
+- [ ] Smooth animations (Reanimated) + haptics — deferred to polish (Phase 8)
+- [ ] Intra-session re-queue of lapsed (Again) cards — future enhancement
 
-**Done when:** a full daily review can be completed with correct scheduling.
+**Done when:** a full daily review can be completed with correct scheduling. ✅
+Verified on web: reveal → grade with real FSRS interval previews (1m/6m/10m/7d).
 
 ---
 

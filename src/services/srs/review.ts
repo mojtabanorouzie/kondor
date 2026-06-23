@@ -31,12 +31,17 @@ function toState(card: CardRow): SchedulingState {
  * The card update and log write are issued sequentially; wrapping them in a
  * transaction is a future hardening step once we settle a cross-driver helper.
  */
+export interface PersistedReview extends ReviewOutcome {
+  /** Id of the review log written, so a session can undo it. */
+  reviewLogId: string;
+}
+
 export async function gradeCard(
   db: Database,
   cardId: string,
   grade: Grade,
   options: { now?: number; config?: SrsConfig } = {},
-): Promise<ReviewOutcome> {
+): Promise<PersistedReview> {
   const now = options.now ?? Date.now();
   const config = options.config ?? DEFAULT_SRS_CONFIG;
 
@@ -58,7 +63,7 @@ export async function gradeCard(
     lastReviewedAt: outcome.card.lastReviewedAt ?? null,
   });
 
-  await reviewLogRepository.create(db, {
+  const log = await reviewLogRepository.create(db, {
     cardId,
     grade: outcome.log.grade,
     stateBefore: outcome.log.stateBefore,
@@ -66,5 +71,5 @@ export async function gradeCard(
     reviewedAt: outcome.log.reviewedAt,
   });
 
-  return outcome;
+  return { ...outcome, reviewLogId: log.id };
 }

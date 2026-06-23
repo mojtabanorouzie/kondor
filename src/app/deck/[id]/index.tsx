@@ -63,6 +63,10 @@ export default function DeckScreen() {
           keyboardShouldPersistTaps="handled"
           ListHeaderComponent={
             <View style={styles.toolbar}>
+              <Button
+                title="Study"
+                onPress={() => router.push(`/deck/${id}/study`)}
+              />
               <TextField
                 placeholder="Search cards"
                 value={query}

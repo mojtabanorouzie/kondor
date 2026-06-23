@@ -37,6 +37,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 - Documented that Android/iOS are primary; web preview is limited by an upstream
   expo-sqlite sync-worker issue (see ARCHITECTURE.md).
 
+- **Phase 4 — Study session:** a daily review screen that shows the front,
+  reveals the back, and grades with Again/Hard/Good/Easy — each button previewing
+  the next interval (e.g. 1m/6m/10m/7d) computed live from FSRS. Builds the due
+  queue (new + review, respecting per-deck daily limits), shows progress and an
+  end-of-session summary, supports undo (restores the card and deletes its review
+  log), and adds web keyboard shortcuts (space / 1–4 / u). Reachable via a Study
+  button on each deck. 5 new tests (24 total).
+
 ### Fixed
 - **Web now works.** Replaced Drizzle's sync `expo-sqlite` driver with the async
   `sqlite-proxy` driver routed through expo-sqlite's async API, sidestepping the

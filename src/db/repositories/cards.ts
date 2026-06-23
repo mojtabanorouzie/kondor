@@ -43,6 +43,21 @@ export const cardRepository = {
     return row;
   },
 
+  /** A deck's due cards joined with note content, ordered by due (soonest first). */
+  async getDueWithNotes(
+    db: Database,
+    deckId: string,
+    now: number = Date.now(),
+  ): Promise<CardWithNote[]> {
+    const rows = await db
+      .select({ card: cards, noteFields: notes.fields })
+      .from(cards)
+      .innerJoin(notes, eq(cards.noteId, notes.id))
+      .where(and(eq(cards.deckId, deckId), lte(cards.due, now)))
+      .orderBy(cards.due);
+    return rows.map((r) => ({ ...r.card, noteFields: r.noteFields }));
+  },
+
   /** Cards in a deck that are due at or before `now` (epoch ms). */
   async getDue(
     db: Database,
