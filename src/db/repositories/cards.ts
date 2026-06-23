@@ -26,6 +26,11 @@ export const cardRepository = {
     return db.select().from(cards).where(eq(cards.deckId, deckId));
   },
 
+  /** Every card in the collection (for global statistics). */
+  async getAll(db: Database): Promise<CardRow[]> {
+    return db.select().from(cards);
+  },
+
   /** All cards generated from a single note. */
   async getByNote(db: Database, noteId: string): Promise<CardRow[]> {
     return db.select().from(cards).where(eq(cards.noteId, noteId));

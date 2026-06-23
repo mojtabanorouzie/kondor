@@ -105,12 +105,14 @@ Schema migration 0002 adds `note_types.kind` and `cards.template_index`.
 ## Phase 6 — Statistics & Insights
 *Goal: motivation through visible progress.*
 
-- [ ] Review history persisted and queryable
-- [ ] Charts: reviews/day, retention, forecast of due cards, streaks
-- [ ] Per-deck and global stats
-- [ ] Heatmap calendar
+- [x] Review history persisted and queryable (`getSinceWithDeck`)
+- [x] Charts: reviews/day, retention, forecast of due cards, streaks
+- [x] Per-deck and global stats (shared `StatsView`, optional `deckId`)
+- [x] Heatmap calendar (SVG contribution grid)
+- [x] Tests for the stats computations (streak, retention, end-to-end)
 
-**Done when:** users can see meaningful learning analytics.
+**Done when:** users can see meaningful learning analytics. ✅
+Verified on web: tiles, card-state bar, reviews & forecast bar charts, heatmap.
 
 ---
 

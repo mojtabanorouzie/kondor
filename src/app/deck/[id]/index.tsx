@@ -73,11 +73,20 @@ export default function DeckScreen() {
                 value={query}
                 onChangeText={setQuery}
               />
-              <Button
-                title="Edit deck"
-                variant="secondary"
-                onPress={() => router.push(`/deck/${id}/edit`)}
-              />
+              <View style={styles.toolbarRow}>
+                <Button
+                  title="Stats"
+                  variant="secondary"
+                  onPress={() => router.push(`/deck/${id}/stats`)}
+                  style={styles.flex}
+                />
+                <Button
+                  title="Edit deck"
+                  variant="secondary"
+                  onPress={() => router.push(`/deck/${id}/edit`)}
+                  style={styles.flex}
+                />
+              </View>
             </View>
           }
           ListEmptyComponent={
@@ -125,6 +134,8 @@ const styles = StyleSheet.create({
   center: { marginTop: Spacing.six },
   list: { padding: Spacing.four, gap: Spacing.three },
   toolbar: { gap: Spacing.three, marginBottom: Spacing.three },
+  toolbarRow: { flexDirection: 'row', gap: Spacing.three },
+  flex: { flex: 1 },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
   pressed: { opacity: 0.7 },
   add: { lineHeight: 32, paddingHorizontal: Spacing.two },

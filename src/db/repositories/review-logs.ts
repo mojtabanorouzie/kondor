@@ -1,7 +1,8 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, gte } from 'drizzle-orm';
 
 import type { Database } from '../client';
 import {
+  cards,
   reviewLogs,
   type NewReviewLogRow,
   type ReviewLogRow,
@@ -9,6 +10,14 @@ import {
 import { uuid } from '@/utils/id';
 
 export type CreateReviewLogInput = Omit<NewReviewLogRow, 'id'>;
+
+/** A review event tagged with the deck of the card it belongs to. */
+export interface ReviewLogWithDeck {
+  reviewedAt: number;
+  grade: number;
+  stateBefore: number;
+  deckId: string;
+}
 
 export const reviewLogRepository = {
   async create(
@@ -33,5 +42,23 @@ export const reviewLogRepository = {
   /** Remove a single log (used to undo a review). */
   async remove(db: Database, id: string): Promise<void> {
     await db.delete(reviewLogs).where(eq(reviewLogs.id, id));
+  },
+
+  /** All reviews at/after `since` (epoch ms), each tagged with its deck. */
+  async getSinceWithDeck(
+    db: Database,
+    since: number,
+  ): Promise<ReviewLogWithDeck[]> {
+    return db
+      .select({
+        reviewedAt: reviewLogs.reviewedAt,
+        grade: reviewLogs.grade,
+        stateBefore: reviewLogs.stateBefore,
+        deckId: cards.deckId,
+      })
+      .from(reviewLogs)
+      .innerJoin(cards, eq(reviewLogs.cardId, cards.id))
+      .where(gte(reviewLogs.reviewedAt, since))
+      .orderBy(reviewLogs.reviewedAt);
   },
 };

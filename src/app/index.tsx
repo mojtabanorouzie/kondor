@@ -16,6 +16,15 @@ export default function DecksScreen() {
     <Screen padded={false}>
       <Stack.Screen
         options={{
+          headerLeft: () => (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Statistics"
+              onPress={() => router.push('/stats')}
+              hitSlop={12}>
+              <ThemedText type="link">Stats</ThemedText>
+            </Pressable>
+          ),
           headerRight: () => (
             <Pressable
               accessibilityRole="button"

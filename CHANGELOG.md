@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 ## [Unreleased]
 
 ### Added
+- **Phase 6 — Statistics & insights:** a global and per-deck stats screen with
+  summary tiles (cards, reviews today, streak, retention), a card-state bar,
+  reviews-per-day and due-forecast bar charts, and a calendar heatmap — built on
+  `react-native-svg` (works on web + native). Pure, tested aggregations in
+  `stats-service` (`computeStreak`, `computeRetention`, `computeForecast`, …) plus
+  `getSinceWithDeck` review-history query. 8 new tests (41 total).
 - Initial project scaffold: Expo (SDK 56) + TypeScript + Expo Router.
 - Feature-first source architecture (`src/features`, `src/db`, `src/services`, …).
 - Project documentation: README, ROADMAP, ARCHITECTURE, ADR-0001 (tech stack).
