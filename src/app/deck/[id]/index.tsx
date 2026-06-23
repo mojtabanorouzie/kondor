@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useDeckCards } from '@/features/cards/use-deck-cards';
+import { renderCard, toPreview } from '@/services/templating';
 
 export default function DeckScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -89,24 +90,31 @@ export default function DeckScreen() {
               <EmptyState title="No matches" message="Try a different search." />
             )
           }
-          renderItem={({ item }) => (
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push(`/deck/${id}/card/${item.id}`)}
-              style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.card}>
-                <ThemedText type="smallBold" numberOfLines={2}>
-                  {item.noteFields.Front || '(empty)'}
-                </ThemedText>
-                <ThemedText
-                  type="small"
-                  themeColor="textSecondary"
-                  numberOfLines={2}>
-                  {item.noteFields.Back || '(empty)'}
-                </ThemedText>
-              </ThemedView>
-            </Pressable>
-          )}
+          renderItem={({ item }) => {
+            const rendered = renderCard(
+              item.noteKind,
+              item.noteFields,
+              item.templateIndex,
+            );
+            return (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push(`/deck/${id}/card/${item.id}`)}
+                style={({ pressed }) => pressed && styles.pressed}>
+                <ThemedView type="backgroundElement" style={styles.card}>
+                  <ThemedText type="smallBold" numberOfLines={2}>
+                    {toPreview(rendered.front) || '(empty)'}
+                  </ThemedText>
+                  <ThemedText
+                    type="small"
+                    themeColor="textSecondary"
+                    numberOfLines={2}>
+                    {toPreview(rendered.back) || '(empty)'}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
+            );
+          }}
         />
       )}
     </Screen>

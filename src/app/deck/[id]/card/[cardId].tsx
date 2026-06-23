@@ -4,15 +4,17 @@ import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/screen';
+import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
-import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
 import {
   deleteCardByNote,
-  loadCardForEdit,
-  updateBasicCard,
+  loadNoteForEdit,
+  updateNote,
 } from '@/features/cards/card-service';
+import { isNoteValid, NoteFields } from '@/features/cards/note-form';
+import type { NoteKind } from '@/types';
 
 export default function EditCardScreen() {
   const { cardId } = useLocalSearchParams<{ cardId: string }>();
@@ -20,25 +22,23 @@ export default function EditCardScreen() {
   const router = useRouter();
 
   const [noteId, setNoteId] = useState<string | null>(null);
-  const [front, setFront] = useState('');
-  const [back, setBack] = useState('');
-  const [status, setStatus] = useState<'loading' | 'ready' | 'missing'>(
-    'loading',
-  );
+  const [kind, setKind] = useState<NoteKind>('basic');
+  const [fields, setFields] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    loadCardForEdit(db, cardId).then((card) => {
+    loadNoteForEdit(db, cardId).then((note) => {
       if (cancelled) return;
-      if (!card) {
+      if (!note) {
         setStatus('missing');
         return;
       }
-      setNoteId(card.noteId);
-      setFront(card.front);
-      setBack(card.back);
+      setNoteId(note.noteId);
+      setKind(note.kind);
+      setFields(note.fields);
       setStatus('ready');
     });
     return () => {
@@ -46,14 +46,16 @@ export default function EditCardScreen() {
     };
   }, [db, cardId]);
 
+  const setField = (name: string, value: string) =>
+    setFields((f) => ({ ...f, [name]: value }));
+
   async function save() {
     if (!noteId) return;
     setSaving(true);
     try {
-      await updateBasicCard(db, noteId, {
-        front: front.trim(),
-        back: back.trim(),
-      });
+      const trimmed: Record<string, string> = {};
+      for (const [k, v] of Object.entries(fields)) trimmed[k] = v.trim();
+      await updateNote(db, noteId, kind, trimmed);
       router.back();
     } finally {
       setSaving(false);
@@ -73,11 +75,10 @@ export default function EditCardScreen() {
   if (status === 'loading') {
     return (
       <Screen>
-        <ActivityIndicator style={styles.center} />
+        <ActivityIndicator style={styles.loader} />
       </Screen>
     );
   }
-
   if (status === 'missing') {
     return (
       <Screen>
@@ -86,21 +87,19 @@ export default function EditCardScreen() {
     );
   }
 
-  const canSave =
-    front.trim().length > 0 && back.trim().length > 0 && !saving;
-
   return (
     <Screen padded={false}>
       <ScrollView contentContainerStyle={styles.content}>
-        <TextField
-          label="Front"
-          value={front}
-          onChangeText={setFront}
-          autoFocus
-          multiline
+        <ThemedText type="small" themeColor="textSecondary">
+          {kind === 'cloze' ? 'Cloze card' : 'Basic card'}
+        </ThemedText>
+        <NoteFields kind={kind} fields={fields} onChange={setField} />
+        <Button
+          title="Save"
+          onPress={save}
+          disabled={!isNoteValid(kind, fields) || saving}
+          loading={saving}
         />
-        <TextField label="Back" value={back} onChangeText={setBack} multiline />
-        <Button title="Save" onPress={save} disabled={!canSave} loading={saving} />
         <Button
           title={confirmingDelete ? 'Tap again to confirm delete' : 'Delete card'}
           variant="destructive"
@@ -112,6 +111,6 @@ export default function EditCardScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { marginTop: Spacing.six },
+  loader: { marginTop: Spacing.six },
   content: { padding: Spacing.four, gap: Spacing.four },
 });

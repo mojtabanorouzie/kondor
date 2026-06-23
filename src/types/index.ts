@@ -9,6 +9,9 @@
 /** Unique id type. SQLite rows use text UUIDs. */
 export type Id = string;
 
+/** Templating behaviour of a note type. */
+export type NoteKind = 'basic' | 'cloze';
+
 /** FSRS card lifecycle state. */
 export enum CardState {
   New = 0,

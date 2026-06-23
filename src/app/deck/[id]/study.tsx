@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 
+import { CardContent } from '@/components/card-content';
 import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
@@ -16,6 +17,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useStudySession } from '@/features/study/use-study-session';
+import { renderCard } from '@/services/templating';
 import { Grade } from '@/types';
 
 const GRADE_META: Record<Grade, { name: string; color: string }> = {
@@ -120,15 +122,25 @@ export default function StudyScreen() {
       <ScrollView
         contentContainerStyle={styles.cardArea}
         keyboardShouldPersistTaps="handled">
-        <ThemedText type="subtitle" style={styles.center}>
-          {current?.noteFields.Front}
-        </ThemedText>
-        {revealed && (
+        {current ? (
+          <CardContent
+            content={
+              renderCard(current.noteKind, current.noteFields, current.templateIndex)
+                .front
+            }
+            type="subtitle"
+          />
+        ) : null}
+        {revealed && current && (
           <>
             <ThemedView type="backgroundElement" style={styles.divider} />
-            <ThemedText type="default" themeColor="textSecondary" style={styles.center}>
-              {current?.noteFields.Back}
-            </ThemedText>
+            <CardContent
+              content={
+                renderCard(current.noteKind, current.noteFields, current.templateIndex)
+                  .back
+              }
+              type="default"
+            />
           </>
         )}
       </ScrollView>

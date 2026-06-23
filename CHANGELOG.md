@@ -45,6 +45,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
   log), and adds web keyboard shortcuts (space / 1–4 / u). Reachable via a Study
   button on each deck. 5 new tests (24 total).
 
+- **Phase 5 — Rich content:** cloze deletions and multiple note types.
+  - New **Cloze** note type: `{{c1::answer::hint}}` syntax generates one card per
+    ordinal; study blanks the active cloze and reveals the rest.
+  - A card-templating layer (`src/services/templating`) renders front/back per
+    note kind and card ordinal.
+  - `CardContent` renders lightweight markdown (bold/italic/code) and images
+    (`![alt](url)` via expo-image), used in study and the browser.
+  - Add-card screen has a Basic/Cloze toggle; editing re-syncs cloze cards.
+  - Schema migration 0002: `note_types.kind`, `cards.template_index`.
+  - 9 new tests (33 total). Audio and LaTeX deferred.
+
 ### Fixed
 - **Web now works.** Replaced Drizzle's sync `expo-sqlite` driver with the async
   `sqlite-proxy` driver routed through expo-sqlite's async API, sidestepping the

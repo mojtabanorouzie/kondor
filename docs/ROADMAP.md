@@ -90,13 +90,15 @@ Verified on web: reveal → grade with real FSRS interval previews (1m/6m/10m/7d
 ## Phase 5 — Rich Content
 *Goal: cards worth studying.*
 
-- [ ] Rich text / basic HTML or Markdown rendering on cards
-- [ ] Images (expo-image) and audio (expo-av) on cards
-- [ ] Cloze deletion note type
-- [ ] Multiple note types + card templates
-- [ ] LaTeX/MathJax rendering (optional)
+- [x] Lightweight markdown on cards (bold, italic, code) — `CardContent`
+- [x] Images on cards via `![alt](url)` (expo-image)
+- [x] Cloze deletion note type (`{{c1::answer::hint}}`, one card per ordinal)
+- [x] Multiple note types + card templating (`src/services/templating`)
+- [ ] Audio (expo-av) — deferred (native module; revisit with media attachments)
+- [ ] LaTeX/MathJax rendering — deferred (optional)
 
-**Done when:** cards support text, images, audio, and cloze.
+**Done when:** cards support text, images, and cloze. ✅ (audio/LaTeX deferred)
+Schema migration 0002 adds `note_types.kind` and `cards.template_index`.
 
 ---
 

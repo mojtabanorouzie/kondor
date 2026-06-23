@@ -4,34 +4,39 @@ import { ScrollView, StyleSheet } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Button } from '@/components/ui/button';
-import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
-import { createBasicCard } from '@/features/cards/card-service';
+import { createNote } from '@/features/cards/card-service';
+import {
+  isNoteValid,
+  KindToggle,
+  NoteFields,
+} from '@/features/cards/note-form';
+import type { NoteKind } from '@/types';
 
 export default function NewCardScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const db = useDatabase();
   const router = useRouter();
 
-  const [front, setFront] = useState('');
-  const [back, setBack] = useState('');
+  const [kind, setKind] = useState<NoteKind>('basic');
+  const [fields, setFields] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
 
-  const canSave = front.trim().length > 0 && back.trim().length > 0 && !saving;
+  const setField = (name: string, value: string) =>
+    setFields((f) => ({ ...f, [name]: value }));
+
+  const canSave = isNoteValid(kind, fields) && !saving;
 
   async function save() {
     setSaving(true);
     try {
-      await createBasicCard(db, {
-        deckId: id,
-        front: front.trim(),
-        back: back.trim(),
-      });
+      const trimmed: Record<string, string> = {};
+      for (const [k, v] of Object.entries(fields)) trimmed[k] = v.trim();
+      await createNote(db, { deckId: id, kind, fields: trimmed });
       if (addAnother) {
-        setFront('');
-        setBack('');
+        setFields({});
       } else {
         router.back();
       }
@@ -43,21 +48,14 @@ export default function NewCardScreen() {
   return (
     <Screen padded={false}>
       <ScrollView contentContainerStyle={styles.content}>
-        <TextField
-          label="Front"
-          value={front}
-          onChangeText={setFront}
-          placeholder="Question / prompt"
-          autoFocus
-          multiline
+        <KindToggle
+          value={kind}
+          onChange={(k) => {
+            setKind(k);
+            setFields({});
+          }}
         />
-        <TextField
-          label="Back"
-          value={back}
-          onChangeText={setBack}
-          placeholder="Answer"
-          multiline
-        />
+        <NoteFields kind={kind} fields={fields} onChange={setField} />
         <Button title="Add card" onPress={save} disabled={!canSave} loading={saving} />
         <Button
           title={addAnother ? '✓ Keep adding more' : 'Keep adding more'}

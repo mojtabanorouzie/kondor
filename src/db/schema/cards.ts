@@ -15,6 +15,8 @@ export const cards = sqliteTable('cards', {
   deckId: text('deck_id')
     .notNull()
     .references(() => decks.id, { onDelete: 'cascade' }),
+  /** Which template/cloze ordinal this card renders (0 for Basic). */
+  templateIndex: integer('template_index').notNull().default(0),
   state: integer('state').notNull().default(0),
   /** Epoch ms when the card is next due. */
   due: integer('due').notNull(),

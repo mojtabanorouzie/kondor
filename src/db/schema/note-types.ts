@@ -7,6 +7,8 @@ import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 export const noteTypes = sqliteTable('note_types', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
+  /** Templating behaviour: 'basic' (front/back) or 'cloze'. */
+  kind: text('kind').notNull().default('basic'),
   /** Ordered field names, stored as a JSON array. */
   fields: text('fields', { mode: 'json' }).notNull().$type<string[]>(),
 });
