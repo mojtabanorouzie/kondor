@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 ## [Unreleased]
 
 ### Added
+- **Phase 7 — Import / Export & interop:** export a full Kondor JSON backup and
+  restore it; import cards from CSV/TSV (quoted fields, delimiter auto-detect);
+  and import Anki `.apkg` files (fflate unzip + sql.js read of the collection +
+  note mapping into a new deck). Cross-platform file I/O (web download/upload,
+  native share + document picker) and an Import & Export screen. 8 new tests
+  (49 total), including a full synthetic `.apkg` round-trip.
 - **Phase 6 — Statistics & insights:** a global and per-deck stats screen with
   summary tiles (cards, reviews today, streak, retention), a card-state bar,
   reviews-per-day and due-forecast bar charts, and a calendar heatmap — built on

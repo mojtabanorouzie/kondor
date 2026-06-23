@@ -14,6 +14,7 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="index" options={{ title: 'Kondor' }} />
           <Stack.Screen name="stats" options={{ title: 'Statistics' }} />
+          <Stack.Screen name="settings" options={{ title: 'Import & Export' }} />
           <Stack.Screen
             name="deck/new"
             options={{ title: 'New deck', presentation: 'modal' }}

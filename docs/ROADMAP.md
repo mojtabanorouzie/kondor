@@ -119,12 +119,18 @@ Verified on web: tiles, card-state bar, reviews & forecast bar charts, heatmap.
 ## Phase 7 — Import / Export & Interop
 *Goal: don't trap users' data; meet them where they are.*
 
-- [ ] Export/import Kondor's own JSON backup format
-- [ ] Import Anki `.apkg` (unzip, read SQLite collection, map media)
-- [ ] Import CSV/TSV
-- [ ] Share/export a deck
+- [x] Export/import Kondor's own JSON backup format (full collection, replace-on-import)
+- [x] Import Anki `.apkg` (fflate unzip + sql.js read of the collection + note mapping)
+- [x] Import CSV/TSV (quoted fields, delimiter auto-detect)
+- [x] Cross-platform file I/O (web download/upload; native share + document picker)
+- [x] Import/Export screen + tests (backup round-trip, CSV, Anki map, synthetic .apkg)
 
-**Done when:** an existing AnkiDroid user can bring their decks in.
+**Done when:** an existing AnkiDroid user can bring their decks in. ✅
+Export verified on web; imports verified via tests. Notes:
+- Anki import brings in notes/fields into a new deck; scheduling history is not
+  imported (cards start New). Media import is a future enhancement.
+- sql.js wasm loads from CDN on web (only during import); bundling for offline/
+  native import is a follow-up.
 
 ---
 

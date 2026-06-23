@@ -1,5 +1,11 @@
 import { Stack, useRouter } from 'expo-router';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/screen';
@@ -17,13 +23,22 @@ export default function DecksScreen() {
       <Stack.Screen
         options={{
           headerLeft: () => (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Statistics"
-              onPress={() => router.push('/stats')}
-              hitSlop={12}>
-              <ThemedText type="link">Stats</ThemedText>
-            </Pressable>
+            <View style={styles.headerLeft}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Statistics"
+                onPress={() => router.push('/stats')}
+                hitSlop={12}>
+                <ThemedText type="link">Stats</ThemedText>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Import and export"
+                onPress={() => router.push('/settings')}
+                hitSlop={12}>
+                <ThemedText type="link">Data</ThemedText>
+              </Pressable>
+            </View>
           ),
           headerRight: () => (
             <Pressable
@@ -69,4 +84,5 @@ const styles = StyleSheet.create({
   center: { marginTop: Spacing.six },
   list: { padding: Spacing.four, gap: Spacing.three },
   add: { lineHeight: 32, paddingHorizontal: Spacing.two },
+  headerLeft: { flexDirection: 'row', gap: Spacing.three },
 });

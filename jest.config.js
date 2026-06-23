@@ -14,6 +14,7 @@ module.exports = {
   // Only *.test.ts are suites; helpers/ and fixtures are plain modules.
   testMatch: ['**/*.test.ts'],
   moduleNameMapper: {
+    '^react-native$': '<rootDir>/__tests__/helpers/react-native-mock.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {
