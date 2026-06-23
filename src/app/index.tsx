@@ -1,93 +1,63 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack, useRouter } from 'expo-router';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
+import { EmptyState } from '@/components/empty-state';
+import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { DeckSummaryList } from '@/features/decks/DeckSummaryList';
+import { Spacing } from '@/constants/theme';
+import { DeckCard } from '@/features/decks/DeckCard';
+import { useDecks } from '@/features/decks/use-decks';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function DecksScreen() {
+  const router = useRouter();
+  const { data: decks, loading, error } = useDecks();
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <Screen padded={false}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="New deck"
+              onPress={() => router.push('/deck/new')}
+              hitSlop={12}>
+              <ThemedText type="subtitle" style={styles.add}>
+                +
+              </ThemedText>
+            </Pressable>
+          ),
+        }}
+      />
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Kondor
-          </ThemedText>
-        </ThemedView>
-
-        <DeckSummaryList />
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      {loading ? (
+        <ActivityIndicator style={styles.center} />
+      ) : error ? (
+        <EmptyState title="Something went wrong" message={error.message} />
+      ) : !decks || decks.length === 0 ? (
+        <EmptyState
+          title="No decks yet"
+          message="Tap + to create your first deck."
+        />
+      ) : (
+        <FlatList
+          data={decks}
+          keyExtractor={(d) => d.id}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => (
+            <DeckCard
+              deck={item}
+              onPress={() => router.push(`/deck/${item.id}`)}
+            />
+          )}
+        />
+      )}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  center: { marginTop: Spacing.six },
+  list: { padding: Spacing.four, gap: Spacing.three },
+  add: { lineHeight: 32, paddingHorizontal: Spacing.two },
 });

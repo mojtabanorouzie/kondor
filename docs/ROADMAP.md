@@ -55,14 +55,18 @@ Engine is wired and tested; the study-session UI that calls it is Phase 4.
 ## Phase 3 — Decks & Cards (CRUD UI)
 *Goal: manage content end-to-end.*
 
-- [ ] Deck list screen (counts: new / learning / due)
-- [ ] Create / rename / delete deck
-- [ ] Card browser within a deck (list, search, filter)
-- [ ] Add / edit card (front/back basic note type)
-- [ ] Empty states, loading states, error handling
-- [ ] Component tests for forms
+- [x] Deck list screen (counts: new / learning / due)
+- [x] Create / rename / delete deck
+- [x] Card browser within a deck (list + search)
+- [x] Add / edit / delete card (front/back Basic note type)
+- [x] Empty states, loading states, error handling
+- [x] Stack navigation (replaced demo tabs); reusable UI primitives
+- [x] Tests for the deck/card data logic (counts, joins, card service)
 
-**Done when:** a user can build a deck of cards from scratch in-app.
+**Done when:** a user can build a deck of cards from scratch in-app. ✅
+Verified via tests + warm runtime queries. UI runtime is native (Android/iOS);
+web preview is limited by an upstream expo-sqlite issue (see ARCHITECTURE.md).
+Component-level (render) tests await a jest-expo project in a later phase.
 
 ---
 

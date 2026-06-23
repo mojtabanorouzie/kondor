@@ -26,3 +26,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 - Added `cards.learning_steps` column for FSRS short-term scheduling (migration 0001).
 - 6 engine tests: state transitions, Again≤Hard≤Good≤Easy interval ordering,
   lapse counting, purity, and end-to-end persistence.
+- **Phase 3 — Decks & Cards UI:** Stack navigation with a deck list (new /
+  learning / due counts), create / rename / delete deck, a per-deck card browser
+  with search, and add / edit / delete card screens.
+- Reusable UI primitives: `Button`, `TextField`, `EmptyState`, `Screen`, and a
+  focus-aware `useAsyncData` hook so lists refresh after edits.
+- Data layer: `deckRepository.getAllWithCounts` (aggregate counts) and
+  `cardRepository.getByDeckWithNotes` (card↔note join); a `card-service` for
+  Basic note/card create/update/delete. 7 new tests (20 total).
+- Documented that Android/iOS are primary; web preview is limited by an upstream
+  expo-sqlite sync-worker issue (see ARCHITECTURE.md).

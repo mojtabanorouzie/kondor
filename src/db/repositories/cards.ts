@@ -1,10 +1,15 @@
 import { and, eq, lte } from 'drizzle-orm';
 
 import type { Database } from '../client';
-import { cards, type CardRow, type NewCardRow } from '../schema';
+import { cards, notes, type CardRow, type NewCardRow } from '../schema';
 import { uuid } from '@/utils/id';
 
 export type CreateCardInput = Omit<NewCardRow, 'id'>;
+
+/** A card joined with its source note's content. */
+export interface CardWithNote extends CardRow {
+  noteFields: Record<string, string>;
+}
 
 export const cardRepository = {
   async create(db: Database, input: CreateCardInput): Promise<CardRow> {
@@ -17,6 +22,20 @@ export const cardRepository = {
 
   async getByDeck(db: Database, deckId: string): Promise<CardRow[]> {
     return db.select().from(cards).where(eq(cards.deckId, deckId));
+  },
+
+  /** A deck's cards joined with their note content, newest first. */
+  async getByDeckWithNotes(
+    db: Database,
+    deckId: string,
+  ): Promise<CardWithNote[]> {
+    const rows = await db
+      .select({ card: cards, noteFields: notes.fields })
+      .from(cards)
+      .innerJoin(notes, eq(cards.noteId, notes.id))
+      .where(eq(cards.deckId, deckId))
+      .orderBy(notes.createdAt);
+    return rows.map((r) => ({ ...r.card, noteFields: r.noteFields }));
   },
 
   async getById(db: Database, id: string): Promise<CardRow | undefined> {

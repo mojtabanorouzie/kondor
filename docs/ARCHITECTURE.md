@@ -42,6 +42,21 @@ We use **FSRS** (Free Spaced Repetition Scheduler) via `ts-fsrs`, the same moder
 
 **Zustand** stores hold transient view state (current study queue, session progress, UI prefs). Persistent data is **not** mirrored into global state — it's read from the DB via repositories/queries so SQLite stays the single source of truth.
 
+## Platform support
+
+**Android and iOS are the primary targets.** They use real synchronous SQLite,
+which Drizzle's `expo-sqlite` driver (sync-only) relies on.
+
+**Web is best-effort.** On web, `expo-sqlite` runs SQLite in a WASM worker and
+exposes synchronous calls via a SharedArrayBuffer channel. Under the app's
+startup query burst that channel can corrupt its own JSON protocol messages
+(surfacing as `SyntaxError: Unterminated string in JSON`), so data-heavy screens
+are unreliable on web. This is an upstream limitation, not an app bug — the same
+queries pass in tests (better-sqlite3) and run correctly when issued
+individually. Develop/preview on a device or emulator (Expo Go works, since it
+uses native SQLite). Revisit if `expo-sqlite` ships an async-capable Drizzle path
+or fixes the web worker channel.
+
 ## Decisions
 
 Significant choices are recorded as ADRs in [`docs/adr/`](adr/). Start with
