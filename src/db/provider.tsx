@@ -1,10 +1,7 @@
-import type { ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { openDatabase, type Database } from './client';
-import migrations from './migrations/migrations';
 
 const DbContext = createContext<Database | null>(null);
 
@@ -17,48 +14,13 @@ export function useDatabase(): Database {
   return db;
 }
 
-function Centered({ children }: { children: React.ReactNode }) {
-  return <View style={styles.center}>{children}</View>;
-}
-
-/** Runs migrations on an open db, then provides it to the tree. */
-function MigrationGate({
-  db,
-  children,
-}: {
-  db: Database;
-  children: React.ReactNode;
-}) {
-  const { success, error } = useMigrations(
-    db as unknown as ExpoSQLiteDatabase,
-    migrations,
-  );
-
-  if (error) {
-    return (
-      <Centered>
-        <Text style={styles.error}>Migration error: {error.message}</Text>
-      </Centered>
-    );
-  }
-  if (!success) {
-    return (
-      <Centered>
-        <ActivityIndicator />
-      </Centered>
-    );
-  }
-
-  return <DbContext.Provider value={db}>{children}</DbContext.Provider>;
-}
-
 /**
- * Opens the database asynchronously, applies migrations, and provides it via
- * context. Mount near the app root so the schema is ready before any query.
+ * Opens the database (applying migrations) and provides it via context. Mount
+ * near the app root so the schema is ready before any screen queries the db.
  */
 export function DatabaseProvider({ children }: { children: React.ReactNode }) {
   const [db, setDb] = useState<Database | null>(null);
-  const [openError, setOpenError] = useState<Error | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,29 +29,30 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
         if (!cancelled) setDb(opened);
       })
       .catch((err) => {
-        if (!cancelled) setOpenError(err as Error);
+        if (!cancelled) setError(err as Error);
       });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  if (openError) {
+  if (error) {
     return (
-      <Centered>
-        <Text style={styles.error}>Database error: {openError.message}</Text>
-      </Centered>
-    );
-  }
-  if (!db) {
-    return (
-      <Centered>
-        <ActivityIndicator />
-      </Centered>
+      <View style={styles.center}>
+        <Text style={styles.error}>Database error: {error.message}</Text>
+      </View>
     );
   }
 
-  return <MigrationGate db={db}>{children}</MigrationGate>;
+  if (!db) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  return <DbContext.Provider value={db}>{children}</DbContext.Provider>;
 }
 
 const styles = StyleSheet.create({

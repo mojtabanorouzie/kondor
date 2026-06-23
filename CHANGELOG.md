@@ -36,3 +36,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
   Basic note/card create/update/delete. 7 new tests (20 total).
 - Documented that Android/iOS are primary; web preview is limited by an upstream
   expo-sqlite sync-worker issue (see ARCHITECTURE.md).
+
+### Fixed
+- **Web now works.** Replaced Drizzle's sync `expo-sqlite` driver with the async
+  `sqlite-proxy` driver routed through expo-sqlite's async API, sidestepping the
+  WASM-worker sync-channel corruption. Added an async migrator (`src/db/migrate.ts`)
+  over the bundled migration SQL. One driver now serves web + native; verified on
+  web (deck list, card browser, Persian content, navigation all render correctly).

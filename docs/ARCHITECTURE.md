@@ -44,18 +44,23 @@ We use **FSRS** (Free Spaced Repetition Scheduler) via `ts-fsrs`, the same moder
 
 ## Platform support
 
-**Android and iOS are the primary targets.** They use real synchronous SQLite,
-which Drizzle's `expo-sqlite` driver (sync-only) relies on.
+Kondor runs on **Android, iOS, and the web** from one codebase.
 
-**Web is best-effort.** On web, `expo-sqlite` runs SQLite in a WASM worker and
-exposes synchronous calls via a SharedArrayBuffer channel. Under the app's
-startup query burst that channel can corrupt its own JSON protocol messages
-(surfacing as `SyntaxError: Unterminated string in JSON`), so data-heavy screens
-are unreliable on web. This is an upstream limitation, not an app bug — the same
-queries pass in tests (better-sqlite3) and run correctly when issued
-individually. Develop/preview on a device or emulator (Expo Go works, since it
-uses native SQLite). Revisit if `expo-sqlite` ships an async-capable Drizzle path
-or fixes the web worker channel.
+### Database driver
+
+We do **not** use Drizzle's `expo-sqlite` driver, because it talks to SQLite
+through expo-sqlite's *synchronous* API. On web that API is backed by a WASM
+worker over a SharedArrayBuffer channel which, under the app's startup query
+burst, corrupts its own JSON protocol messages (`SyntaxError: Unterminated
+string in JSON`).
+
+Instead, `src/db/client.ts` uses Drizzle's **`sqlite-proxy`** (async) driver
+with a small executor that runs every query through expo-sqlite's **async** API
+(`prepareAsync` + `executeForRawResultAsync`). The async path is reliable on web
+and native alike, so a single driver covers all platforms. Migrations run the
+same way via `src/db/migrate.ts` (a tiny async migrator over the babel-inlined
+migration SQL), since Drizzle's bundled migrators are either sync (expo) or
+filesystem-based (proxy) and unsuitable for a RN bundle.
 
 ## Decisions
 
