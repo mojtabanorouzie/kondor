@@ -173,14 +173,32 @@ Real multi-device needs deploying the REST backend (or Supabase) — see ADR.
 ## Phase 10 — Release & Operations
 *Goal: ship and keep shipping.*
 
-- [ ] EAS Build + EAS Submit pipelines
-- [ ] App Store + Google Play listings, privacy policy
-- [ ] Crash/error reporting (Sentry) + analytics (privacy-respecting)
-- [ ] Beta channel (TestFlight / Play internal testing)
-- [ ] Versioning + release notes + OTA updates (expo-updates)
-- [ ] Post-launch backlog & feedback loop
+- [x] EAS Build + EAS Submit pipelines (`eas.json` submit config for iOS + Android)
+- [x] Privacy policy screen (in-app `/privacy`, linked from Settings → About)
+- [x] Error boundary wrapping entire app tree (friendly "Try again" + crash mailto)
+- [x] OTA updates (`expo-updates`): "Check for updates" in Settings, `runtimeVersion`
+      policy, `app.json` updates stanza + plugin
+- [x] Version display in Settings footer (`expo-constants`)
+- [x] Onboarding flow (3-slide first-run, persisted `hasSeenOnboarding`)
+- [x] `app.json` release config: iOS `bundleIdentifier`, `buildNumber`,
+      Android `versionCode`, iOS permission strings
+- [x] i18n for all new screens (onboarding, privacy, version, update — en + fa)
+- [ ] App Store + Google Play listings — needs developer accounts (external step)
+- [ ] Beta channel (TestFlight / Play internal testing) — needs EAS account + build
+- [ ] Post-launch feedback loop
 
 **Done when:** Kondor is live in both stores with an update pipeline.
+Code-side release infrastructure is complete. Remaining items require external
+accounts (Apple/Google developer + EAS). Store submission steps:
+
+1. `eas login` with your Expo account
+2. `eas build --platform android --profile production` → AAB
+3. `eas build --platform ios --profile production` → IPA
+4. Fill in `eas.json` `submit.production.ios.ascAppId` + `appleTeamId`
+5. `eas submit --platform android --profile production`
+6. `eas submit --platform ios --profile production`
+7. Add screenshots, description, and privacy policy URL in App Store Connect
+   and Google Play Console, then submit for review
 
 ---
 

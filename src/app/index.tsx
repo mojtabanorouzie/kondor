@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { Redirect, Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -14,11 +14,15 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { DeckCard } from '@/features/decks/DeckCard';
 import { useDecks } from '@/features/decks/use-decks';
+import { useSettings } from '@/store/settings';
 
 export default function DecksScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { hasSeenOnboarding } = useSettings();
   const { data: decks, loading, error } = useDecks();
+
+  if (!hasSeenOnboarding) return <Redirect href="/onboarding" />;
 
   return (
     <Screen padded={false}>

@@ -6,6 +6,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 ## [Unreleased]
 
 ### Added
+- **Phase 10 — Release & Operations:** store-ready release pipeline and polish.
+  - **Onboarding flow:** a 3-slide first-run introduction (Learn / Track / Your data)
+    displayed once on first launch, skippable, with a "Get started" CTA. State
+    persisted in `app_settings` (`hasSeenOnboarding`). Redirect wired in
+    `index.tsx` via `hasSeenOnboarding` from `SettingsProvider`.
+  - **Error boundary:** a `<ErrorBoundary>` class component wraps the entire app
+    tree. Catches uncaught render errors, shows a friendly "Try again" screen with
+    a mailto link for crash reports, and lets users recover without a full restart.
+  - **OTA updates (`expo-updates`):** "Check for updates" button in Settings calls
+    `checkForUpdateAsync` / `fetchUpdateAsync` / `reloadAsync`; no-ops silently
+    on web and in dev mode. `app.json` configured with `runtimeVersion.policy =
+    "appVersion"` and a placeholder EAS Update URL.
+  - **Privacy policy screen** (`/privacy`): static in-app screen covering data
+    storage, sync, analytics, import, and contact; linked from Settings → About.
+  - **Version display** in Settings footer via `expo-constants`
+    (`Constants.expoConfig.version`).
+  - **`app.json` release config:** `ios.bundleIdentifier = "com.kondor.app"`,
+    `ios.buildNumber`, `android.versionCode`, `runtimeVersion`, `updates` stanza,
+    `expo-updates` plugin, and iOS permission strings.
+  - **`eas.json` submit config:** `submit.production.android` (service-account
+    path, internal track) and `submit.production.ios` (Apple ID, placeholder
+    ASC app ID and team ID).
+  - **i18n:** `common.skip`, full `onboarding.*` namespace (en + fa), and new
+    `settings.about / version / privacy / checkUpdate / updateAvailable /
+    updateNone / updateChecking` keys — all with Persian translations.
+    i18n parity test continues to pass.
 - **Phase 9 — Sync (engine):** an offline-first, conflict-resolving sync engine.
   A pure last-write-wins `mergeSnapshots` (decks/notes/cards by `updatedAt`,
   note-types/review-logs unioned by id) that converges and is idempotent; a

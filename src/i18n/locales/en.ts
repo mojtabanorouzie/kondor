@@ -7,6 +7,20 @@ export const en = {
     done: 'Done',
     finish: 'Finish',
     back: 'Back',
+    skip: 'Skip',
+  },
+  onboarding: {
+    slide1Title: 'Learn smarter, not harder',
+    slide1Body:
+      'Kondor uses spaced repetition to show you cards just before you forget them — maximizing retention with minimal effort.',
+    slide2Title: 'Track your progress',
+    slide2Body:
+      'Charts, streaks, and forecasts give you a clear picture of what you know and what still needs work.',
+    slide3Title: 'Your data, your way',
+    slide3Body:
+      'Export backups, import from Anki, and sync across devices. Kondor never locks you in.',
+    next: 'Next',
+    getStarted: 'Get started',
   },
   decks: {
     headerStats: 'Stats',
@@ -124,6 +138,13 @@ export const en = {
       'Bring cards in from a spreadsheet or from Anki. Each import creates a new deck.',
     importCsv: 'Import CSV / TSV',
     importApkg: 'Import Anki .apkg',
+    about: 'About',
+    version: 'Version {{version}}',
+    privacy: 'Privacy Policy',
+    checkUpdate: 'Check for updates',
+    updateAvailable: 'Update available — relaunch to apply',
+    updateNone: 'You’re on the latest version',
+    updateChecking: 'Checking…',
   },
 };
 

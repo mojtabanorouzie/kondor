@@ -19,10 +19,12 @@ export type ThemeSetting = 'system' | ResolvedScheme;
 
 const KEY_LANGUAGE = 'language';
 const KEY_THEME = 'theme';
+const KEY_ONBOARDING = 'hasSeenOnboarding';
 
 interface SettingsValue {
   language: LanguageSetting;
   theme: ThemeSetting;
+  hasSeenOnboarding: boolean;
   setLanguage: (l: LanguageSetting) => void;
   setTheme: (t: ThemeSetting) => void;
 }
@@ -62,6 +64,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const system = useColorScheme();
   const [language, setLanguageState] = useState<LanguageSetting>('system');
   const [theme, setThemeState] = useState<ThemeSetting>('system');
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -72,6 +75,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const th = (s[KEY_THEME] as ThemeSetting) ?? 'system';
       setLanguageState(lang);
       setThemeState(th);
+      setHasSeenOnboarding(s[KEY_ONBOARDING] === '1');
       const resolved = resolveLanguage(lang);
       i18n.changeLanguage(resolved);
       applyDirection(resolved);
@@ -105,8 +109,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     theme === 'system' ? (system === 'dark' ? 'dark' : 'light') : theme;
 
   const value = useMemo(
-    () => ({ language, theme, setLanguage, setTheme }),
-    [language, theme, setLanguage, setTheme],
+    () => ({ language, theme, hasSeenOnboarding, setLanguage, setTheme }),
+    [language, theme, hasSeenOnboarding, setLanguage, setTheme],
   );
 
   if (!loaded) return null;

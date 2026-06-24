@@ -2,6 +2,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useContext } from 'react';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { ErrorBoundary } from '@/components/error-boundary';
 import { DatabaseProvider } from '@/db';
 import '@/i18n';
 import { SettingsProvider } from '@/store/settings';
@@ -9,11 +10,13 @@ import { SchemeContext } from '@/theme/scheme-context';
 
 export default function RootLayout() {
   return (
-    <DatabaseProvider>
-      <SettingsProvider>
-        <ThemedNavigation />
-      </SettingsProvider>
-    </DatabaseProvider>
+    <ErrorBoundary>
+      <DatabaseProvider>
+        <SettingsProvider>
+          <ThemedNavigation />
+        </SettingsProvider>
+      </DatabaseProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -25,6 +28,11 @@ function ThemedNavigation() {
       <AnimatedSplashOverlay />
       <Stack>
         <Stack.Screen name="index" options={{ title: 'Kondor' }} />
+        <Stack.Screen
+          name="onboarding"
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
         <Stack.Screen name="stats" options={{ title: 'Statistics' }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen

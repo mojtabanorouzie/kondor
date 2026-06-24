@@ -1,7 +1,9 @@
-import { Stack } from 'expo-router';
+import Constants from 'expo-constants';
+import { router, Stack } from 'expo-router';
+import * as Updates from 'expo-updates';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
@@ -32,6 +34,8 @@ import {
 function baseName(name: string): string {
   return name.replace(/\.[^.]+$/, '').trim() || 'Imported';
 }
+
+const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -89,7 +93,7 @@ export default function SettingsScreen() {
           fields: { Front: c.front, Back: c.back },
         });
       }
-      return `${cards.length} → “${deck.name}”`;
+      return `${cards.length} → "${deck.name}"`;
     });
 
   const importApkgHandler = () =>
@@ -97,13 +101,26 @@ export default function SettingsScreen() {
       const picked = await pickBinaryFile(['.apkg', 'application/zip']);
       if (!picked) return t('common.cancel');
       const res = await importApkg(db, picked.bytes, baseName(picked.name));
-      return `${res.notes} → “${baseName(picked.name)}”`;
+      return `${res.notes} → "${baseName(picked.name)}"`;
     });
 
   const syncHandler = () =>
     run(async () => {
       const res = await sync(db, localStorageBackend());
       return t('settings.syncDone', { cards: res.cards });
+    });
+
+  const checkUpdateHandler = () =>
+    run(async () => {
+      // OTA update checks only work in a real build (not Expo Go dev / web)
+      if (Platform.OS === 'web' || __DEV__) {
+        return t('settings.updateNone');
+      }
+      const check = await Updates.checkForUpdateAsync();
+      if (!check.isAvailable) return t('settings.updateNone');
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+      return t('settings.updateAvailable');
     });
 
   return (
@@ -177,7 +194,26 @@ export default function SettingsScreen() {
           />
         </Section>
 
+        <Section title={t('settings.about')}>
+          <Button
+            title={t('settings.checkUpdate')}
+            variant="secondary"
+            onPress={checkUpdateHandler}
+            disabled={busy}
+          />
+          <Pressable onPress={() => router.push('/privacy')} style={styles.row}>
+            <ThemedText type="small">{t('settings.privacy')}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              ›
+            </ThemedText>
+          </Pressable>
+        </Section>
+
         {status ? <ThemedText style={styles.status}>{status}</ThemedText> : null}
+
+        <ThemedText type="small" themeColor="textSecondary" style={styles.version}>
+          {t('settings.version', { version: appVersion })}
+        </ThemedText>
       </ScrollView>
     </Screen>
   );
@@ -209,4 +245,11 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.four, gap: Spacing.five },
   section: { gap: Spacing.three },
   status: { textAlign: 'center' },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.two,
+  },
+  version: { textAlign: 'center', marginTop: Spacing.two },
 });
