@@ -1,0 +1,26 @@
+{
+  "name": "kondor-server",
+  "version": "1.0.0",
+  "description": "Self-hosted sync server for Kondor",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "test": "node node_modules/jest/bin/jest.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.2",
+    "better-sqlite3": "^12.11.1",
+    "fastify": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.11",
+    "tsx": "^4.19.2",
+    "typescript": "~6.0.3"
+  }
+}

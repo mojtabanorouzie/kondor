@@ -118,7 +118,11 @@ export const en = {
     title: 'Settings',
     sync: 'Sync',
     syncDesc:
-      'Back up and merge your collection with browser storage. Point Kondor at your own server for true multi-device sync.',
+      'Leave the fields empty to sync with browser storage, or enter your self-hosted server URL and token for true multi-device sync.',
+    syncServerUrl: 'Server URL',
+    syncServerPlaceholder: 'e.g. http://192.168.1.5:3000/sync',
+    syncToken: 'Access token',
+    syncTokenPlaceholder: 'Token shown on server first run',
     syncNow: 'Sync now',
     syncDone: '{{cards}} cards synced',
     appearance: 'Appearance',

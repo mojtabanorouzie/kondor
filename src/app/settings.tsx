@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { router, Stack } from 'expo-router';
 import * as Updates from 'expo-updates';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -9,9 +9,10 @@ import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
-import { deckRepository } from '@/db/repositories';
+import { deckRepository, settingsRepository } from '@/db/repositories';
 import { createNote } from '@/features/cards/card-service';
 import {
   exportBackup,
@@ -24,7 +25,7 @@ import {
   saveTextFile,
   serializeBackup,
 } from '@/services/import-export';
-import { localStorageBackend, sync } from '@/services/sync';
+import { localStorageBackend, restSyncBackend, sync } from '@/services/sync';
 import {
   useSettings,
   type LanguageSetting,
@@ -44,6 +45,16 @@ export default function SettingsScreen() {
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmReplace, setConfirmReplace] = useState(false);
+  const [serverUrl, setServerUrl] = useState('');
+  const [syncToken, setSyncToken] = useState('');
+
+  // Load persisted sync settings on mount.
+  useEffect(() => {
+    settingsRepository.getAll(db).then((s) => {
+      setServerUrl(s['sync.serverUrl'] ?? '');
+      setSyncToken(s['sync.token'] ?? '');
+    });
+  }, [db]);
 
   async function run(fn: () => Promise<string>) {
     setBusy(true);
@@ -106,7 +117,12 @@ export default function SettingsScreen() {
 
   const syncHandler = () =>
     run(async () => {
-      const res = await sync(db, localStorageBackend());
+      const url = serverUrl.trim();
+      const token = syncToken.trim();
+      const backend = url
+        ? restSyncBackend(url, token || undefined)
+        : localStorageBackend();
+      const res = await sync(db, backend);
       return t('settings.syncDone', { cards: res.cards });
     });
 
@@ -152,6 +168,30 @@ export default function SettingsScreen() {
         </Section>
 
         <Section title={t('settings.sync')} subtitle={t('settings.syncDesc')}>
+          <TextField
+            label={t('settings.syncServerUrl')}
+            value={serverUrl}
+            onChangeText={(v) => {
+              setServerUrl(v);
+              settingsRepository.set(db, 'sync.serverUrl', v);
+            }}
+            placeholder={t('settings.syncServerPlaceholder')}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+          <TextField
+            label={t('settings.syncToken')}
+            value={syncToken}
+            onChangeText={(v) => {
+              setSyncToken(v);
+              settingsRepository.set(db, 'sync.token', v);
+            }}
+            placeholder={t('settings.syncTokenPlaceholder')}
+            autoCapitalize="none"
+            autoCorrect={false}
+            secureTextEntry
+          />
           <Button
             title={t('settings.syncNow')}
             onPress={syncHandler}
