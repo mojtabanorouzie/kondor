@@ -44,3 +44,8 @@ example
 
 # sql.js WASM — copied from node_modules by `npm run export:web`
 /public/sql-wasm.wasm
+
+# SQLite runtime database files (server) — local state, not source
+server/*.db
+server/*.db-wal
+server/*.db-shm
