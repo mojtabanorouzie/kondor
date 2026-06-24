@@ -4,10 +4,7 @@ import type { Database } from '../client';
 import { cards, decks, notes, type DeckRow, type NewDeckRow } from '../schema';
 import { uuid } from '@/utils/id';
 
-export type CreateDeckInput = Omit<
-  NewDeckRow,
-  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
->;
+export type CreateDeckInput = Omit<NewDeckRow, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
 
 export interface DeckWithCounts extends DeckRow {
   total: number;
@@ -30,18 +27,11 @@ export const deckRepository = {
   },
 
   async getAll(db: Database): Promise<DeckRow[]> {
-    return db
-      .select()
-      .from(decks)
-      .where(isNull(decks.deletedAt))
-      .orderBy(decks.name);
+    return db.select().from(decks).where(isNull(decks.deletedAt)).orderBy(decks.name);
   },
 
   /** All live decks with aggregated live-card counts (total / new / learning / due). */
-  async getAllWithCounts(
-    db: Database,
-    now: number = Date.now(),
-  ): Promise<DeckWithCounts[]> {
+  async getAllWithCounts(db: Database, now: number = Date.now()): Promise<DeckWithCounts[]> {
     return db
       .select({
         id: decks.id,
@@ -88,17 +78,8 @@ export const deckRepository = {
   /** Soft-delete the deck and cascade to all its notes and cards. */
   async remove(db: Database, id: string): Promise<void> {
     const now = Date.now();
-    await db
-      .update(cards)
-      .set({ deletedAt: now, updatedAt: now })
-      .where(eq(cards.deckId, id));
-    await db
-      .update(notes)
-      .set({ deletedAt: now, updatedAt: now })
-      .where(eq(notes.deckId, id));
-    await db
-      .update(decks)
-      .set({ deletedAt: now, updatedAt: now })
-      .where(eq(decks.id, id));
+    await db.update(cards).set({ deletedAt: now, updatedAt: now }).where(eq(cards.deckId, id));
+    await db.update(notes).set({ deletedAt: now, updatedAt: now }).where(eq(notes.deckId, id));
+    await db.update(decks).set({ deletedAt: now, updatedAt: now }).where(eq(decks.id, id));
   },
 };

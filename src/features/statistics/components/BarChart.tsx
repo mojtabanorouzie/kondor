@@ -14,12 +14,7 @@ export interface BarChartProps {
 }
 
 /** A minimal responsive bar chart. Width is measured from its container. */
-export function BarChart({
-  values,
-  height = 120,
-  color = '#3c87f7',
-  caption,
-}: BarChartProps) {
+export function BarChart({ values, height = 120, color = '#3c87f7', caption }: BarChartProps) {
   const [width, setWidth] = useState(0);
   const max = Math.max(1, ...values);
   const n = values.length;
@@ -28,9 +23,7 @@ export function BarChart({
 
   return (
     <View>
-      <View
-        style={{ height }}
-        onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      <View style={{ height }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
         {width > 0 && (
           <Svg width={width} height={height}>
             {values.map((v, i) => {

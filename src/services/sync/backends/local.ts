@@ -9,13 +9,15 @@ const KEY = 'kondor-sync-snapshot';
 export function localStorageBackend(): SyncBackend {
   return {
     async pull() {
-      if (typeof localStorage === 'undefined') return null;
+      if (typeof localStorage === 'undefined') return { snapshot: null, seq: 0 };
       const raw = localStorage.getItem(KEY);
-      return raw ? (JSON.parse(raw) as SyncSnapshot) : null;
+      return { snapshot: raw ? (JSON.parse(raw) as SyncSnapshot) : null, seq: 0 };
     },
     async push(snapshot) {
-      if (typeof localStorage === 'undefined') return;
-      localStorage.setItem(KEY, JSON.stringify(snapshot));
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(KEY, JSON.stringify(snapshot));
+      }
+      return 0;
     },
   };
 }

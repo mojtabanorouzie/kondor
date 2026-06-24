@@ -13,12 +13,7 @@ export function Screen({ padded = true, style, ...rest }: ScreenProps) {
   const theme = useTheme();
   return (
     <View
-      style={[
-        styles.screen,
-        { backgroundColor: theme.background },
-        padded && styles.padded,
-        style,
-      ]}
+      style={[styles.screen, { backgroundColor: theme.background }, padded && styles.padded, style]}
       {...rest}
     />
   );

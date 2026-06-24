@@ -14,32 +14,27 @@ export default function PrivacyScreen() {
       <Stack.Screen options={{ title: t('settings.privacy') }} />
       <ScrollView contentContainerStyle={styles.content}>
         <Section title="Data Storage">
-          Kondor stores all your data — decks, cards, and review history — locally
-          on your device using SQLite. Nothing is sent to any server unless you
-          explicitly use the Sync feature.
+          Kondor stores all your data — decks, cards, and review history — locally on your device
+          using SQLite. Nothing is sent to any server unless you explicitly use the Sync feature.
         </Section>
 
         <Section title="Sync">
-          When you press "Sync now," a snapshot of your collection is written to
-          your browser's local storage (web) or to a server you configure. No
-          data is shared with the Kondor developers.
+          When you press "Sync now," a snapshot of your collection is written to your browser's
+          local storage (web) or to a server you configure. No data is shared with the Kondor
+          developers.
         </Section>
 
         <Section title="Analytics & Crash Reporting">
-          Kondor does not include any third-party analytics or advertising SDKs.
-          No usage data, device identifiers, or personal information is collected
-          or transmitted.
+          Kondor does not include any third-party analytics or advertising SDKs. No usage data,
+          device identifiers, or personal information is collected or transmitted.
         </Section>
 
         <Section title="Import">
-          Files you import (CSV, Anki .apkg, JSON backup) are read locally. For
-          Anki imports on web, sql.js is loaded from a CDN (jsDelivr) — only the
-          WebAssembly binary is fetched, not your card data.
+          Files you import (CSV, Anki .apkg, JSON backup) are read and processed entirely on your
+          device. No data leaves your device during import.
         </Section>
 
-        <Section title="Contact">
-          Questions? Reach us at daeimoshtaba@gmail.com
-        </Section>
+        <Section title="Contact">Questions? Reach us at daeimoshtaba@gmail.com</Section>
 
         <ThemedText type="small" themeColor="textSecondary" style={styles.date}>
           Last updated: June 2026

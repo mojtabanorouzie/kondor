@@ -1,10 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { ThemedText } from '@/components/themed-text';
@@ -27,12 +22,7 @@ export function StatsView({ deckId }: { deckId?: string }) {
   if (!stats) return null;
 
   if (stats.totalCards === 0) {
-    return (
-      <EmptyState
-        title={t('stats.noDataTitle')}
-        message={t('stats.noDataMessage')}
-      />
-    );
+    return <EmptyState title={t('stats.noDataTitle')} message={t('stats.noDataMessage')} />;
   }
 
   return (
@@ -40,10 +30,7 @@ export function StatsView({ deckId }: { deckId?: string }) {
       <View style={styles.tiles}>
         <Tile label={t('stats.cards')} value={stats.totalCards} />
         <Tile label={t('stats.reviewsToday')} value={stats.reviewsToday} />
-        <Tile
-          label={t('stats.streak')}
-          value={t('stats.streakDays', { count: stats.streak })}
-        />
+        <Tile label={t('stats.streak')} value={t('stats.streakDays', { count: stats.streak })} />
         <Tile
           label={t('stats.retention')}
           value={stats.retentionPct === null ? '—' : `${stats.retentionPct}%`}
@@ -92,13 +79,7 @@ function Tile({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={styles.section}>
       <ThemedText type="smallBold">{title}</ThemedText>

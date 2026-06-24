@@ -35,8 +35,7 @@ export function Button({
       : variant === 'destructive'
         ? DESTRUCTIVE
         : theme.backgroundElement;
-  const color =
-    variant === 'secondary' ? theme.text : '#ffffff';
+  const color = variant === 'secondary' ? theme.text : '#ffffff';
 
   return (
     <Pressable

@@ -13,18 +13,14 @@ import { mapAnkiNotes, type AnkiModel, type AnkiNote } from './anki-map';
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
 /**
- * Load sql.js. In Node (tests) it finds its wasm via the filesystem. On web we
- * fetch the wasm from the sql.js CDN — only needed during the rare import
- * action, so it doesn't compromise normal offline use. (Bundling the wasm for
- * fully-offline/native import is a future enhancement.)
+ * Load sql.js. In Node (tests) it finds the WASM via the filesystem. On web
+ * the WASM is served from /sql-wasm.wasm — copied from node_modules into
+ * public/ by `npm run copy-wasm` (or `npm run export:web`) so Anki import
+ * works fully offline without any CDN dependency.
  */
 function loadSqlJs(): Promise<SqlJsStatic> {
   if (!sqlPromise) {
-    sqlPromise = initSqlJs(
-      Platform.OS === 'web'
-        ? { locateFile: (f) => `https://sql.js.org/dist/${f}` }
-        : undefined,
-    );
+    sqlPromise = initSqlJs(Platform.OS === 'web' ? { locateFile: (f) => `/${f}` } : undefined);
   }
   return sqlPromise;
 }
@@ -57,9 +53,10 @@ export async function importApkg(
   let mapped: { kind: NoteKind; fields: Record<string, string> }[];
   try {
     const modelsJson = adb.exec('SELECT models FROM col LIMIT 1')[0]?.values?.[0]?.[0];
-    const models = (
-      typeof modelsJson === 'string' ? JSON.parse(modelsJson) : {}
-    ) as Record<string, AnkiModel>;
+    const models = (typeof modelsJson === 'string' ? JSON.parse(modelsJson) : {}) as Record<
+      string,
+      AnkiModel
+    >;
 
     const noteRows = adb.exec('SELECT mid, flds FROM notes')[0]?.values ?? [];
     const ankiNotes: AnkiNote[] = noteRows.map((r) => ({

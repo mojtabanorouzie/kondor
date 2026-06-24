@@ -8,12 +8,7 @@ import {
   type CardWithNote,
 } from '@/db/repositories';
 import type { CardRow } from '@/db/schema';
-import {
-  createScheduler,
-  gradeCard,
-  rateCard,
-  type SchedulingState,
-} from '@/services/srs';
+import { createScheduler, gradeCard, rateCard, type SchedulingState } from '@/services/srs';
 import { CardState, Grade } from '@/types';
 
 import { formatInterval } from './format-interval';
@@ -133,10 +128,7 @@ export function useStudySession(deckId: string) {
       try {
         const { noteFields: _ignore, ...snapshot } = current;
         const res = await gradeCard(db, current.id, g);
-        setUndoStack((s) => [
-          ...s,
-          { snapshot, reviewLogId: res.reviewLogId, grade: g },
-        ]);
+        setUndoStack((s) => [...s, { snapshot, reviewLogId: res.reviewLogId, grade: g }]);
         setSummary((t) => ({
           ...t,
           total: t.total + 1,

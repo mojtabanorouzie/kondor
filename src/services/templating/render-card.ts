@@ -35,10 +35,7 @@ export function renderCard(
  * Which template ordinals a note produces cards for. Basic always yields one
  * card (ordinal 0); Cloze yields one per distinct cloze number (at least one).
  */
-export function cardOrdinalsFor(
-  kind: NoteKind,
-  fields: Record<string, string>,
-): number[] {
+export function cardOrdinalsFor(kind: NoteKind, fields: Record<string, string>): number[] {
   if (kind === 'cloze') {
     const ordinals = clozeOrdinals(fields.Text ?? '');
     return ordinals.length > 0 ? ordinals : [1];

@@ -1,12 +1,6 @@
 import type { Database } from '@/db/client';
 import * as schema from '@/db/schema';
-import type {
-  CardRow,
-  DeckRow,
-  NoteRow,
-  NoteTypeRow,
-  ReviewLogRow,
-} from '@/db/schema';
+import type { CardRow, DeckRow, NoteRow, NoteTypeRow, ReviewLogRow } from '@/db/schema';
 
 export const BACKUP_FORMAT = 'kondor-backup';
 export const BACKUP_VERSION = 1;

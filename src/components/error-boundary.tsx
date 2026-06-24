@@ -38,13 +38,12 @@ export class ErrorBoundary extends Component<Props, State> {
           {msg}
         </ThemedText>
         <Pressable style={styles.btn} onPress={this.reset}>
-          <ThemedText type="smallBold" style={styles.btnText}>Try again</ThemedText>
+          <ThemedText type="smallBold" style={styles.btnText}>
+            Try again
+          </ThemedText>
         </Pressable>
         <Pressable onPress={() => Linking.openURL(mailto)}>
-          <ThemedText
-            type="small"
-            themeColor="textSecondary"
-            style={styles.report}>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.report}>
             Report this issue
           </ThemedText>
         </Pressable>

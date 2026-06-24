@@ -41,7 +41,10 @@ export async function saveTextFile(
   }
 }
 
-function pickWeb(mode: 'text' | 'binary', accept: string[]): Promise<PickedText | PickedBinary | null> {
+function pickWeb(
+  mode: 'text' | 'binary',
+  accept: string[],
+): Promise<PickedText | PickedBinary | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';

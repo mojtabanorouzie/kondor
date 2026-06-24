@@ -1,13 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/screen';
@@ -26,7 +20,7 @@ export default function DeckScreen() {
   const { data, loading, error } = useDeckCards(id);
   const [query, setQuery] = useState('');
 
-  const cards = data?.cards ?? [];
+  const cards = useMemo(() => data?.cards ?? [], [data?.cards]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return cards;
@@ -66,10 +60,7 @@ export default function DeckScreen() {
           keyboardShouldPersistTaps="handled"
           ListHeaderComponent={
             <View style={styles.toolbar}>
-              <Button
-                title={t('deck.study')}
-                onPress={() => router.push(`/deck/${id}/study`)}
-              />
+              <Button title={t('deck.study')} onPress={() => router.push(`/deck/${id}/study`)} />
               <TextField
                 placeholder={t('deck.searchPlaceholder')}
                 value={query}
@@ -93,23 +84,13 @@ export default function DeckScreen() {
           }
           ListEmptyComponent={
             cards.length === 0 ? (
-              <EmptyState
-                title={t('deck.emptyTitle')}
-                message={t('deck.emptyMessage')}
-              />
+              <EmptyState title={t('deck.emptyTitle')} message={t('deck.emptyMessage')} />
             ) : (
-              <EmptyState
-                title={t('deck.noMatchesTitle')}
-                message={t('deck.noMatchesMessage')}
-              />
+              <EmptyState title={t('deck.noMatchesTitle')} message={t('deck.noMatchesMessage')} />
             )
           }
           renderItem={({ item }) => {
-            const rendered = renderCard(
-              item.noteKind,
-              item.noteFields,
-              item.templateIndex,
-            );
+            const rendered = renderCard(item.noteKind, item.noteFields, item.templateIndex);
             return (
               <Pressable
                 accessibilityRole="button"
@@ -119,10 +100,7 @@ export default function DeckScreen() {
                   <ThemedText type="smallBold" numberOfLines={2}>
                     {toPreview(rendered.front) || '(empty)'}
                   </ThemedText>
-                  <ThemedText
-                    type="small"
-                    themeColor="textSecondary"
-                    numberOfLines={2}>
+                  <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
                     {toPreview(rendered.back) || '(empty)'}
                   </ThemedText>
                 </ThemedView>

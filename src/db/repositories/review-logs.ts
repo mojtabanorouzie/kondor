@@ -1,12 +1,7 @@
 import { desc, eq, gte } from 'drizzle-orm';
 
 import type { Database } from '../client';
-import {
-  cards,
-  reviewLogs,
-  type NewReviewLogRow,
-  type ReviewLogRow,
-} from '../schema';
+import { cards, reviewLogs, type NewReviewLogRow, type ReviewLogRow } from '../schema';
 import { uuid } from '@/utils/id';
 
 export type CreateReviewLogInput = Omit<NewReviewLogRow, 'id'>;
@@ -20,10 +15,7 @@ export interface ReviewLogWithDeck {
 }
 
 export const reviewLogRepository = {
-  async create(
-    db: Database,
-    input: CreateReviewLogInput,
-  ): Promise<ReviewLogRow> {
+  async create(db: Database, input: CreateReviewLogInput): Promise<ReviewLogRow> {
     const [created] = await db
       .insert(reviewLogs)
       .values({ id: uuid(), ...input })
@@ -45,10 +37,7 @@ export const reviewLogRepository = {
   },
 
   /** All reviews at/after `since` (epoch ms), each tagged with its deck. */
-  async getSinceWithDeck(
-    db: Database,
-    since: number,
-  ): Promise<ReviewLogWithDeck[]> {
+  async getSinceWithDeck(db: Database, since: number): Promise<ReviewLogWithDeck[]> {
     return db
       .select({
         reviewedAt: reviewLogs.reviewedAt,

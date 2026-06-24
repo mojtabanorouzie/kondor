@@ -1,10 +1,5 @@
 import type { Database } from './client';
-import {
-  cardRepository,
-  deckRepository,
-  noteRepository,
-  noteTypeRepository,
-} from './repositories';
+import { cardRepository, deckRepository, noteRepository, noteTypeRepository } from './repositories';
 import { CardState } from '@/types';
 
 /**

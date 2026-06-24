@@ -38,7 +38,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Kondor",
+      "shortName": "Kondor",
+      "description": "Spaced-repetition flashcards — learn smarter, not harder",
+      "themeColor": "#208AEF",
+      "backgroundColor": "#ffffff",
+      "display": "standalone",
+      "lang": "en"
     },
     "plugins": [
       "expo-router",
@@ -55,7 +62,8 @@
       "expo-sqlite",
       "expo-sharing",
       "expo-localization",
-      "expo-updates"
+      "expo-updates",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

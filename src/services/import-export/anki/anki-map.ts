@@ -29,10 +29,7 @@ export interface MappedNote {
  * extra. Cloze models become Kondor cloze notes; everything else becomes Basic.
  * Notes whose primary field is empty are skipped.
  */
-export function mapAnkiNotes(
-  models: Record<string, AnkiModel>,
-  notes: AnkiNote[],
-): MappedNote[] {
+export function mapAnkiNotes(models: Record<string, AnkiModel>, notes: AnkiNote[]): MappedNote[] {
   const out: MappedNote[] = [];
 
   for (const note of notes) {

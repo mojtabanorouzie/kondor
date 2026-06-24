@@ -1,32 +1,49 @@
 import type { SyncBackend, SyncSnapshot } from '../types';
 
 /**
- * Reference backend for a real server. `GET {url}` returns the stored snapshot
- * (or 404 when none), `PUT {url}` stores it. Point it at any endpoint — e.g. a
- * thin Supabase Edge Function — to get real multi-device sync. An optional
- * bearer token is sent for auth.
+ * Backend for a self-hosted Kondor sync server. Supports the delta protocol:
+ *   GET  {baseUrl}/sync?since=<seq>  → partial snapshot + X-Sync-Seq header
+ *   PUT  {baseUrl}/sync              → full or partial push; X-Sync-Seq in response
+ *
+ * `getToken` is called before every request and should return a valid JWT access
+ * token (transparently refreshed via AuthProvider.getValidToken).
  */
-export function restSyncBackend(url: string, token?: string): SyncBackend {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-  if (token) headers.Authorization = `Bearer ${token}`;
+export function restSyncBackend(
+  baseUrl: string,
+  getToken: () => Promise<string | null>,
+): SyncBackend {
+  const syncUrl = `${baseUrl.replace(/\/+$/, '')}/sync`;
+
+  async function makeHeaders(): Promise<Record<string, string>> {
+    const token = await getToken();
+    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = `Bearer ${token}`;
+    return h;
+  }
 
   return {
-    async pull() {
-      const res = await fetch(url, { headers });
-      if (res.status === 404) return null;
+    async pull(since?: number) {
+      const endpoint = since !== undefined && since > 0 ? `${syncUrl}?since=${since}` : syncUrl;
+      const res = await fetch(endpoint, { headers: await makeHeaders() });
+
+      const seq = Number(res.headers.get('X-Sync-Seq') ?? 0);
+
+      if (res.status === 204 || res.status === 404) return { snapshot: null, seq };
       if (!res.ok) throw new Error(`Sync pull failed (${res.status})`);
+
       const text = await res.text();
-      return text ? (JSON.parse(text) as SyncSnapshot) : null;
+      const snapshot = text ? (JSON.parse(text) as SyncSnapshot) : null;
+      return { snapshot, seq };
     },
+
     async push(snapshot) {
-      const res = await fetch(url, {
+      const res = await fetch(syncUrl, {
         method: 'PUT',
-        headers,
+        headers: await makeHeaders(),
         body: JSON.stringify(snapshot),
       });
       if (!res.ok) throw new Error(`Sync push failed (${res.status})`);
+      return Number(res.headers.get('X-Sync-Seq') ?? 0);
     },
   };
 }

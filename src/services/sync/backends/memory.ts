@@ -5,10 +5,11 @@ export function memoryBackend(initial: SyncSnapshot | null = null): SyncBackend 
   let store = initial;
   return {
     async pull() {
-      return store;
+      return { snapshot: store, seq: 0 };
     },
     async push(snapshot) {
       store = snapshot;
+      return 0;
     },
   };
 }

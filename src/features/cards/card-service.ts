@@ -1,9 +1,5 @@
 import type { Database } from '@/db/client';
-import {
-  cardRepository,
-  noteRepository,
-  noteTypeRepository,
-} from '@/db/repositories';
+import { cardRepository, noteRepository, noteTypeRepository } from '@/db/repositories';
 import type { NoteTypeRow } from '@/db/schema';
 import { newCardState } from '@/services/srs';
 import { cardOrdinalsFor } from '@/services/templating';
@@ -15,10 +11,7 @@ const NOTE_TYPE_DEFS: Record<NoteKind, { name: string; fields: string[] }> = {
 };
 
 /** Find the shared note type for a kind, creating it once if missing. */
-export async function getOrCreateNoteType(
-  db: Database,
-  kind: NoteKind,
-): Promise<NoteTypeRow> {
+export async function getOrCreateNoteType(db: Database, kind: NoteKind): Promise<NoteTypeRow> {
   const existing = await noteTypeRepository.getAll(db);
   const match = existing.find((t) => t.kind === kind);
   if (match) return match;
@@ -63,10 +56,7 @@ export interface CreateNoteInput {
 }
 
 /** Create a note of any kind and generate its card(s). */
-export async function createNote(
-  db: Database,
-  input: CreateNoteInput,
-): Promise<void> {
+export async function createNote(db: Database, input: CreateNoteInput): Promise<void> {
   const noteType = await getOrCreateNoteType(db, input.kind);
   const note = await noteRepository.create(db, {
     deckId: input.deckId,
@@ -105,10 +95,7 @@ export async function updateNote(
 }
 
 /** Delete a card by removing its note (cascades to all of its cards). */
-export async function deleteCardByNote(
-  db: Database,
-  noteId: string,
-): Promise<void> {
+export async function deleteCardByNote(db: Database, noteId: string): Promise<void> {
   await noteRepository.remove(db, noteId);
 }
 

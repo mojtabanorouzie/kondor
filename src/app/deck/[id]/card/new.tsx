@@ -8,11 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
 import { createNote } from '@/features/cards/card-service';
-import {
-  isNoteValid,
-  KindToggle,
-  NoteFields,
-} from '@/features/cards/note-form';
+import { isNoteValid, KindToggle, NoteFields } from '@/features/cards/note-form';
 import type { NoteKind } from '@/types';
 
 export default function NewCardScreen() {
@@ -26,8 +22,7 @@ export default function NewCardScreen() {
   const [saving, setSaving] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
 
-  const setField = (name: string, value: string) =>
-    setFields((f) => ({ ...f, [name]: value }));
+  const setField = (name: string, value: string) => setFields((f) => ({ ...f, [name]: value }));
 
   const canSave = isNoteValid(kind, fields) && !saving;
 
