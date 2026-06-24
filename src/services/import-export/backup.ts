@@ -107,9 +107,10 @@ export async function importBackupReplace(
   await insertAll(db, schema.cards, d.cards);
   await insertAll(db, schema.reviewLogs, d.reviewLogs ?? []);
 
+  // Count only live (non-tombstoned) rows for the user-facing summary.
   return {
-    decks: d.decks.length,
-    notes: d.notes.length,
-    cards: d.cards.length,
+    decks: d.decks.filter((r) => r.deletedAt == null).length,
+    notes: d.notes.filter((r) => r.deletedAt == null).length,
+    cards: d.cards.filter((r) => r.deletedAt == null).length,
   };
 }

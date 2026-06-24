@@ -1,12 +1,12 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 
 import type { Database } from '../client';
-import { notes, type NewNoteRow, type NoteRow } from '../schema';
+import { cards, notes, type NewNoteRow, type NoteRow } from '../schema';
 import { uuid } from '@/utils/id';
 
 export type CreateNoteInput = Omit<
   NewNoteRow,
-  'id' | 'createdAt' | 'updatedAt'
+  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
 >;
 
 export const noteRepository = {
@@ -20,11 +20,17 @@ export const noteRepository = {
   },
 
   async getByDeck(db: Database, deckId: string): Promise<NoteRow[]> {
-    return db.select().from(notes).where(eq(notes.deckId, deckId));
+    return db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.deckId, deckId), isNull(notes.deletedAt)));
   },
 
   async getById(db: Database, id: string): Promise<NoteRow | undefined> {
-    const [row] = await db.select().from(notes).where(eq(notes.id, id));
+    const [row] = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, id), isNull(notes.deletedAt)));
     return row;
   },
 
@@ -36,12 +42,21 @@ export const noteRepository = {
     const [row] = await db
       .update(notes)
       .set({ ...patch, updatedAt: Date.now() })
-      .where(eq(notes.id, id))
+      .where(and(eq(notes.id, id), isNull(notes.deletedAt)))
       .returning();
     return row;
   },
 
+  /** Soft-delete the note and cascade to all its cards. */
   async remove(db: Database, id: string): Promise<void> {
-    await db.delete(notes).where(eq(notes.id, id));
+    const now = Date.now();
+    await db
+      .update(cards)
+      .set({ deletedAt: now, updatedAt: now })
+      .where(eq(cards.noteId, id));
+    await db
+      .update(notes)
+      .set({ deletedAt: now, updatedAt: now })
+      .where(eq(notes.id, id));
   },
 };

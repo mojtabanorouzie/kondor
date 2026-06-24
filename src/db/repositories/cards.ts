@@ -1,11 +1,11 @@
-import { and, eq, lte } from 'drizzle-orm';
+import { and, eq, isNull, lte } from 'drizzle-orm';
 
 import type { Database } from '../client';
 import { cards, noteTypes, notes, type CardRow, type NewCardRow } from '../schema';
 import type { NoteKind } from '@/types';
 import { uuid } from '@/utils/id';
 
-export type CreateCardInput = Omit<NewCardRow, 'id'>;
+export type CreateCardInput = Omit<NewCardRow, 'id' | 'deletedAt'>;
 
 /** A card joined with its source note's content and note-type kind. */
 export interface CardWithNote extends CardRow {
@@ -23,20 +23,26 @@ export const cardRepository = {
   },
 
   async getByDeck(db: Database, deckId: string): Promise<CardRow[]> {
-    return db.select().from(cards).where(eq(cards.deckId, deckId));
+    return db
+      .select()
+      .from(cards)
+      .where(and(eq(cards.deckId, deckId), isNull(cards.deletedAt)));
   },
 
-  /** Every card in the collection (for global statistics). */
+  /** Every live card in the collection (for global statistics). */
   async getAll(db: Database): Promise<CardRow[]> {
-    return db.select().from(cards);
+    return db.select().from(cards).where(isNull(cards.deletedAt));
   },
 
-  /** All cards generated from a single note. */
+  /** All live cards generated from a single note. */
   async getByNote(db: Database, noteId: string): Promise<CardRow[]> {
-    return db.select().from(cards).where(eq(cards.noteId, noteId));
+    return db
+      .select()
+      .from(cards)
+      .where(and(eq(cards.noteId, noteId), isNull(cards.deletedAt)));
   },
 
-  /** A deck's cards joined with their note content + kind, newest first. */
+  /** A deck's live cards joined with their note content + kind, newest first. */
   async getByDeckWithNotes(
     db: Database,
     deckId: string,
@@ -46,7 +52,7 @@ export const cardRepository = {
       .from(cards)
       .innerJoin(notes, eq(cards.noteId, notes.id))
       .innerJoin(noteTypes, eq(notes.noteTypeId, noteTypes.id))
-      .where(eq(cards.deckId, deckId))
+      .where(and(eq(cards.deckId, deckId), isNull(cards.deletedAt)))
       .orderBy(notes.createdAt);
     return rows.map((r) => ({
       ...r.card,
@@ -56,11 +62,14 @@ export const cardRepository = {
   },
 
   async getById(db: Database, id: string): Promise<CardRow | undefined> {
-    const [row] = await db.select().from(cards).where(eq(cards.id, id));
+    const [row] = await db
+      .select()
+      .from(cards)
+      .where(and(eq(cards.id, id), isNull(cards.deletedAt)));
     return row;
   },
 
-  /** A deck's due cards joined with note content, ordered by due (soonest first). */
+  /** A deck's live due cards joined with note content, ordered by due (soonest first). */
   async getDueWithNotes(
     db: Database,
     deckId: string,
@@ -71,7 +80,7 @@ export const cardRepository = {
       .from(cards)
       .innerJoin(notes, eq(cards.noteId, notes.id))
       .innerJoin(noteTypes, eq(notes.noteTypeId, noteTypes.id))
-      .where(and(eq(cards.deckId, deckId), lte(cards.due, now)))
+      .where(and(eq(cards.deckId, deckId), lte(cards.due, now), isNull(cards.deletedAt)))
       .orderBy(cards.due);
     return rows.map((r) => ({
       ...r.card,
@@ -80,7 +89,7 @@ export const cardRepository = {
     }));
   },
 
-  /** Cards in a deck that are due at or before `now` (epoch ms). */
+  /** Live cards in a deck that are due at or before `now` (epoch ms). */
   async getDue(
     db: Database,
     deckId: string,
@@ -89,7 +98,7 @@ export const cardRepository = {
     return db
       .select()
       .from(cards)
-      .where(and(eq(cards.deckId, deckId), lte(cards.due, now)))
+      .where(and(eq(cards.deckId, deckId), lte(cards.due, now), isNull(cards.deletedAt)))
       .orderBy(cards.due);
   },
 
@@ -102,12 +111,17 @@ export const cardRepository = {
     const [row] = await db
       .update(cards)
       .set({ ...patch, updatedAt: Date.now() })
-      .where(eq(cards.id, id))
+      .where(and(eq(cards.id, id), isNull(cards.deletedAt)))
       .returning();
     return row;
   },
 
+  /** Soft-delete a single card. */
   async remove(db: Database, id: string): Promise<void> {
-    await db.delete(cards).where(eq(cards.id, id));
+    const now = Date.now();
+    await db
+      .update(cards)
+      .set({ deletedAt: now, updatedAt: now })
+      .where(eq(cards.id, id));
   },
 };

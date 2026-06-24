@@ -24,6 +24,7 @@ function deck(id: string, updatedAt: number, name = 'd'): DeckRow {
     reviewsPerDay: 200,
     createdAt: 0,
     updatedAt,
+    deletedAt: null,
   };
 }
 
@@ -69,6 +70,26 @@ describe('Phase 9 — sync', () => {
       // merging again with either side changes nothing
       expect(sortDecks(mergeSnapshots(ab, b).decks)).toEqual(sortDecks(ab.decks));
     });
+
+    it('tombstone wins over live row when tombstone is newer (LWW)', () => {
+      const live: SyncData = { ...EMPTY, decks: [deck('a', 10, 'alive')] };
+      const deleted: SyncData = {
+        ...EMPTY,
+        decks: [{ ...deck('a', 20, 'alive'), deletedAt: 20 }],
+      };
+      const merged = mergeSnapshots(live, deleted);
+      expect(merged.decks[0].deletedAt).toBe(20);
+    });
+
+    it('live row wins when the edit is newer than the delete (resurrection)', () => {
+      const resurrected: SyncData = { ...EMPTY, decks: [deck('a', 30, 'alive')] };
+      const deleted: SyncData = {
+        ...EMPTY,
+        decks: [{ ...deck('a', 20, 'alive'), deletedAt: 20 }],
+      };
+      const merged = mergeSnapshots(resurrected, deleted);
+      expect(merged.decks[0].deletedAt).toBeNull();
+    });
   });
 
   describe('two-device convergence', () => {
@@ -107,6 +128,39 @@ describe('Phase 9 — sync', () => {
 
       // Both devices match.
       expect(aCards[0]).toEqual(bCards[0] && (await cardRepository.getById(deviceB, bCards[0].id)));
+    });
+
+    it('propagates deletions via tombstones (Phase 11)', async () => {
+      const backend = memoryBackend();
+      const deviceA: Database = createTestDb();
+      const deviceB: Database = createTestDb();
+
+      // A creates a deck and syncs.
+      const d = await deckRepository.create(deviceA, { name: 'ToDelete' });
+      await createNote(deviceA, {
+        deckId: d.id,
+        kind: 'basic',
+        fields: { Front: 'q', Back: 'a' },
+      });
+      await sync(deviceA, backend);
+
+      // B syncs — receives the deck and card.
+      await sync(deviceB, backend);
+      expect(await deckRepository.getAll(deviceB)).toHaveLength(1);
+      expect(await cardRepository.getAll(deviceB)).toHaveLength(1);
+
+      // A deletes the deck (soft-delete cascades to notes + cards).
+      await deckRepository.remove(deviceA, d.id);
+      expect(await deckRepository.getAll(deviceA)).toHaveLength(0);
+      expect(await cardRepository.getAll(deviceA)).toHaveLength(0);
+
+      // A syncs — pushes tombstones.
+      await sync(deviceA, backend);
+
+      // B syncs — receives tombstones; deck and card disappear from B.
+      await sync(deviceB, backend);
+      expect(await deckRepository.getAll(deviceB)).toHaveLength(0);
+      expect(await cardRepository.getAll(deviceB)).toHaveLength(0);
     });
   });
 });

@@ -36,6 +36,8 @@ export const cards = sqliteTable('cards', {
   updatedAt: integer('updated_at')
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
+  /** Epoch ms when the row was soft-deleted; null means the card is alive. */
+  deletedAt: integer('deleted_at'),
 });
 
 export type CardRow = typeof cards.$inferSelect;

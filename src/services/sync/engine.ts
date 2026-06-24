@@ -22,10 +22,11 @@ export async function sync(
   await importBackupReplace(db, { ...local, data: merged });
   await backend.push({ updatedAt: Date.now(), data: merged });
 
+  // Count only live (non-tombstoned) rows for the result summary.
   return {
-    decks: merged.decks.length,
-    notes: merged.notes.length,
-    cards: merged.cards.length,
+    decks: merged.decks.filter((r) => r.deletedAt == null).length,
+    notes: merged.notes.filter((r) => r.deletedAt == null).length,
+    cards: merged.cards.filter((r) => r.deletedAt == null).length,
     reviewLogs: merged.reviewLogs.length,
   };
 }

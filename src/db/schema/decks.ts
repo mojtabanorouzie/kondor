@@ -16,6 +16,8 @@ export const decks = sqliteTable('decks', {
   updatedAt: integer('updated_at')
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
+  /** Epoch ms when the row was soft-deleted; null means the deck is alive. */
+  deletedAt: integer('deleted_at'),
 });
 
 export type DeckRow = typeof decks.$inferSelect;

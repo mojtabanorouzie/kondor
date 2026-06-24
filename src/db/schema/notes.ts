@@ -25,6 +25,8 @@ export const notes = sqliteTable('notes', {
   updatedAt: integer('updated_at')
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
+  /** Epoch ms when the row was soft-deleted; null means the note is alive. */
+  deletedAt: integer('deleted_at'),
 });
 
 export type NoteRow = typeof notes.$inferSelect;

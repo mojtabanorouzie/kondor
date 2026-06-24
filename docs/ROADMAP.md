@@ -202,6 +202,116 @@ accounts (Apple/Google developer + EAS). Store submission steps:
 
 ---
 
+## Phase 11 — Tombstones (Deletion Propagation)
+*Goal: deletions sync across devices.*
+
+The Phase 9 LWW engine has no concept of deletion. A deck deleted on device A reappears on device
+B at the next sync because the row simply vanishes from A's snapshot. Tombstones fix this.
+
+- [ ] Migration 0005: `deleted_at INTEGER` (nullable) on `decks`, `notes`, `cards`
+- [ ] Drizzle schema: add `deletedAt` nullable field to all three tables
+- [ ] Repositories: `remove()` → soft-delete (set `deleted_at = updatedAt = now()`);
+      all read queries add `WHERE deleted_at IS NULL`; cascade soft-delete (deck→notes→cards,
+      note→cards)
+- [ ] `exportBackup` already selects `*` — tombstoned rows travel in the snapshot automatically
+- [ ] `importBackupReplace` ImportResult counts exclude tombstoned rows
+- [ ] `engine.ts` SyncResult counts exclude tombstoned rows
+- [ ] No change to `mergeSnapshots` — LWW by `updatedAt` already handles tombstones correctly
+- [ ] Tests: extend two-device convergence test to cover deletion propagation
+
+**Acceptance criteria:**
+1. Delete a deck on device A → sync → `deckRepository.getAll(deviceB)` returns 0 decks after
+   device B syncs. Verified by the new Jest test.
+2. `node node_modules/jest/bin/jest.js` green; `npx tsc --noEmit` exit 0.
+
+See [ADR-0003](adr/0003-universal-offline-self-hosted-sync.md).
+
+---
+
+## Phase 12 — Self-Hosted Sync Server (MVP)
+*Goal: real multi-device sync via a server I run on my own computer.*
+
+Single-user, static bearer token, full-snapshot protocol (delta deferred to Phase 14).
+
+- [ ] `server/` sub-package: `package.json`, `tsconfig.json`, `jest.config.js`
+- [ ] `server/src/db.ts`: better-sqlite3 setup; schema: `users (id, token, created_at)` +
+      `snapshots (user_id PK → users, data TEXT, updated_at)`
+- [ ] `server/src/app.ts`: Fastify 5 + @fastify/cors; routes: `GET /health`,
+      `GET /sync` (pull → 200+snapshot or 204), `PUT /sync` (push → 204)
+- [ ] `server/src/index.ts`: startup; auto-generate + print token on first run; listen on
+      `0.0.0.0:PORT` (default 3000); honour `KONDOR_TOKEN` and `DB_PATH` env vars
+- [ ] `server/__tests__/app.test.ts`: Jest + Fastify `.inject()` — auth rejection, pull when
+      empty, push+pull round-trip, idempotent push
+- [ ] `server/README.md`: run the server, configure the app, Tailscale + LAN notes, TLS warning
+- [ ] App settings UI: add "Sync server URL" + "Access token" text fields (stored in
+      `appSettings` as `sync.serverUrl` / `sync.token`); sync button uses `restSyncBackend`
+      when URL is set, `localStorageBackend` otherwise
+- [ ] i18n: new keys for server URL + token fields (en + fa)
+
+**Acceptance criteria:**
+1. `cd server && npm install && npm start` — server prints the access token and starts.
+2. Configure two browser tabs with the server URL + token → click "Sync now" on both →
+   both converge.
+3. Root `node node_modules/jest/bin/jest.js` green; `cd server && npm test` green;
+   `npx tsc --noEmit` exit 0.
+
+---
+
+## Phase 13 — Auth Accounts (Multi-User)
+*Goal: multiple users; secure auth over TLS.*
+
+- [ ] Server: `email TEXT UNIQUE`, `password_hash TEXT` columns added to `users` (migration)
+- [ ] `POST /auth/register` → creates user, returns JWT (1 h) + refresh token
+- [ ] `POST /auth/login` → validates bcrypt hash, returns JWT + refresh token
+- [ ] `POST /auth/refresh` → rotates refresh token
+- [ ] Bearer-token middleware replaced by JWT verification
+- [ ] `snapshots` already has `user_id` FK → per-user isolation works unchanged
+- [ ] App: auth section in sync settings (register / login / logout); JWT stored in `appSettings`
+- [ ] Guide: Tailscale + `https://<hostname>.ts.net` for remote sync with TLS
+
+**Acceptance criteria:**
+1. Two different accounts (register + login) on the same server store independent snapshots.
+2. Expired JWT → 401 → refresh flow re-authenticates without user action.
+3. All tests green.
+
+---
+
+## Phase 14 — Delta / Incremental Sync
+*Goal: transfer only changed rows, not the full collection.*
+
+- [ ] Server: `seq INTEGER DEFAULT 0` on `snapshots`; bumped on each PUT
+- [ ] `GET /sync?since=<seq>` returns only rows with `updatedAt > since`
+- [ ] `PUT /sync` body is a delta (rows changed since last sync); server merges with stored
+      snapshot and returns new `seq`
+- [ ] Client: store `lastSyncSeq` in `appSettings`; pass `since` on pull; push delta only
+- [ ] Retry-safe: duplicate PUT with same rows is idempotent (LWW still converges)
+- [ ] Tests: delta sync converges to same result as full-snapshot sync; concurrent-device scenario
+
+**Acceptance criteria:**
+1. A 1 000-card collection syncs in < 100 ms after a single-card change.
+2. Full-snapshot fallback (`since=0`) still works.
+3. All tests green.
+
+---
+
+## Phase 15 — Platform Polish
+*Goal: every platform works fully offline; Windows installable; Anki import CDN-free.*
+
+- [ ] Bundle sql.js WASM locally (remove CDN dependency for Anki .apkg import)
+- [ ] `GET /health` endpoint → `{ status: "ok", version: "…" }` (already in Phase 12; polish
+      here includes version + uptime)
+- [ ] Guide: install Kondor as a PWA on Windows (Chrome / Edge "Install app" prompt)
+- [ ] Guide: Tailscale step-by-step (install on Windows server + iOS/Android; use
+      `https://<hostname>.ts.net/sync` as the server URL)
+- [ ] Verify expo-sqlite OPFS persistence on web: reload the PWA → decks and cards survive
+
+**Acceptance criteria:**
+1. Import an Anki .apkg with no internet connection — import succeeds.
+2. Reload the web PWA after adding a deck — deck survives the reload.
+3. All tests green.
+
+---
+
 ## Working Rhythm
 
 1. Pick the next unchecked item in the current phase.

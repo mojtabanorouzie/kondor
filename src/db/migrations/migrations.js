@@ -6,6 +6,7 @@ import m0001 from './0001_absent_azazel.sql';
 import m0002 from './0002_soft_rachel_grey.sql';
 import m0003 from './0003_groovy_wolverine.sql';
 import m0004 from './0004_striped_marvel_apes.sql';
+import m0005 from './0005_tombstones.sql';
 
   export default {
     journal,
@@ -14,7 +15,7 @@ import m0004 from './0004_striped_marvel_apes.sql';
 m0001,
 m0002,
 m0003,
-m0004
+m0004,
+m0005
     }
   }
-  
