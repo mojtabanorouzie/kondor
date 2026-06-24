@@ -1,5 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
@@ -17,6 +18,7 @@ import { isNoteValid, NoteFields } from '@/features/cards/note-form';
 import type { NoteKind } from '@/types';
 
 export default function EditCardScreen() {
+  const { t } = useTranslation();
   const { cardId } = useLocalSearchParams<{ cardId: string }>();
   const db = useDatabase();
   const router = useRouter();
@@ -82,26 +84,31 @@ export default function EditCardScreen() {
   if (status === 'missing') {
     return (
       <Screen>
-        <EmptyState title="Card not found" />
+        <EmptyState title={t('cardForm.notFound')} />
       </Screen>
     );
   }
 
   return (
     <Screen padded={false}>
+      <Stack.Screen
+        options={{
+          title: kind === 'cloze' ? t('cardForm.clozeCard') : t('cardForm.basicCard'),
+        }}
+      />
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedText type="small" themeColor="textSecondary">
-          {kind === 'cloze' ? 'Cloze card' : 'Basic card'}
+          {kind === 'cloze' ? t('cardForm.clozeCard') : t('cardForm.basicCard')}
         </ThemedText>
         <NoteFields kind={kind} fields={fields} onChange={setField} />
         <Button
-          title="Save"
+          title={t('cardForm.save')}
           onPress={save}
           disabled={!isNoteValid(kind, fields) || saving}
           loading={saving}
         />
         <Button
-          title={confirmingDelete ? 'Tap again to confirm delete' : 'Delete card'}
+          title={confirmingDelete ? t('cardForm.deleteConfirm') : t('cardForm.delete')}
           variant="destructive"
           onPress={remove}
         />

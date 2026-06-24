@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — Polish, i18n & theming:** full **English + Persian** localization
+  (i18next + expo-localization) with automatic **RTL** layout for Persian; a
+  light/dark **theme** preference (System/Light/Dark); a real Settings screen
+  (Appearance, Language, Backup, Import) backed by a persisted `app_settings`
+  table (migration 0003). All app screens are translated. Added an i18n parity
+  test (Persian keys match English; no empty strings). 3 new tests (51 total).
 - **Phase 7 — Import / Export & interop:** export a full Kondor JSON backup and
   restore it; import cards from CSV/TSV (quoted fields, delimiter auto-detect);
   and import Anki `.apkg` files (fflate unzip + sql.js read of the collection +

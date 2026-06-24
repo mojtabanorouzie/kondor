@@ -1,5 +1,6 @@
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -10,6 +11,7 @@ import { useDatabase } from '@/db';
 import { deckRepository } from '@/db/repositories';
 
 export default function NewDeckScreen() {
+  const { t } = useTranslation();
   const db = useDatabase();
   const router = useRouter();
   const [name, setName] = useState('');
@@ -33,22 +35,28 @@ export default function NewDeckScreen() {
 
   return (
     <Screen padded={false}>
+      <Stack.Screen options={{ title: t('deckForm.titleNew') }} />
       <ScrollView contentContainerStyle={styles.content}>
         <TextField
-          label="Name"
+          label={t('deckForm.name')}
           value={name}
           onChangeText={setName}
-          placeholder="e.g. French Vocabulary"
+          placeholder={t('deckForm.namePlaceholder')}
           autoFocus
         />
         <TextField
-          label="Description (optional)"
+          label={t('deckForm.description')}
           value={description}
           onChangeText={setDescription}
-          placeholder="What is this deck about?"
+          placeholder={t('deckForm.descriptionPlaceholder')}
           multiline
         />
-        <Button title="Create deck" onPress={save} disabled={!canSave} loading={saving} />
+        <Button
+          title={t('deckForm.create')}
+          onPress={save}
+          disabled={!canSave}
+          loading={saving}
+        />
       </ScrollView>
     </Screen>
   );

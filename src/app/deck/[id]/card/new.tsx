@@ -1,5 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -15,6 +16,7 @@ import {
 import type { NoteKind } from '@/types';
 
 export default function NewCardScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const db = useDatabase();
   const router = useRouter();
@@ -47,6 +49,7 @@ export default function NewCardScreen() {
 
   return (
     <Screen padded={false}>
+      <Stack.Screen options={{ title: t('cardForm.add') }} />
       <ScrollView contentContainerStyle={styles.content}>
         <KindToggle
           value={kind}
@@ -56,9 +59,9 @@ export default function NewCardScreen() {
           }}
         />
         <NoteFields kind={kind} fields={fields} onChange={setField} />
-        <Button title="Add card" onPress={save} disabled={!canSave} loading={saving} />
+        <Button title={t('cardForm.add')} onPress={save} disabled={!canSave} loading={saving} />
         <Button
-          title={addAnother ? '✓ Keep adding more' : 'Keep adding more'}
+          title={addAnother ? t('cardForm.keepAddingOn') : t('cardForm.keepAdding')}
           variant="secondary"
           onPress={() => setAddAnother((v) => !v)}
         />

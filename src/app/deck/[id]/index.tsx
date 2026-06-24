@@ -1,5 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -19,6 +20,7 @@ import { useDeckCards } from '@/features/cards/use-deck-cards';
 import { renderCard, toPreview } from '@/services/templating';
 
 export default function DeckScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data, loading, error } = useDeckCards(id);
@@ -37,11 +39,11 @@ export default function DeckScreen() {
     <Screen padded={false}>
       <Stack.Screen
         options={{
-          title: data?.deck?.name ?? 'Deck',
+          title: data?.deck?.name ?? '',
           headerRight: () => (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="New card"
+              accessibilityLabel={t('cardForm.add')}
               onPress={() => router.push(`/deck/${id}/card/new`)}
               hitSlop={12}>
               <ThemedText type="subtitle" style={styles.add}>
@@ -55,7 +57,7 @@ export default function DeckScreen() {
       {loading ? (
         <ActivityIndicator style={styles.center} />
       ) : error ? (
-        <EmptyState title="Something went wrong" message={error.message} />
+        <EmptyState title={t('decks.errorTitle')} message={error.message} />
       ) : (
         <FlatList
           data={filtered}
@@ -65,23 +67,23 @@ export default function DeckScreen() {
           ListHeaderComponent={
             <View style={styles.toolbar}>
               <Button
-                title="Study"
+                title={t('deck.study')}
                 onPress={() => router.push(`/deck/${id}/study`)}
               />
               <TextField
-                placeholder="Search cards"
+                placeholder={t('deck.searchPlaceholder')}
                 value={query}
                 onChangeText={setQuery}
               />
               <View style={styles.toolbarRow}>
                 <Button
-                  title="Stats"
+                  title={t('deck.stats')}
                   variant="secondary"
                   onPress={() => router.push(`/deck/${id}/stats`)}
                   style={styles.flex}
                 />
                 <Button
-                  title="Edit deck"
+                  title={t('deck.edit')}
                   variant="secondary"
                   onPress={() => router.push(`/deck/${id}/edit`)}
                   style={styles.flex}
@@ -92,11 +94,14 @@ export default function DeckScreen() {
           ListEmptyComponent={
             cards.length === 0 ? (
               <EmptyState
-                title="No cards yet"
-                message="Tap + to add your first card."
+                title={t('deck.emptyTitle')}
+                message={t('deck.emptyMessage')}
               />
             ) : (
-              <EmptyState title="No matches" message="Try a different search." />
+              <EmptyState
+                title={t('deck.noMatchesTitle')}
+                message={t('deck.noMatchesMessage')}
+              />
             )
           }
           renderItem={({ item }) => {

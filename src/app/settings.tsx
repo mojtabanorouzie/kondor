@@ -1,10 +1,12 @@
 import { Stack } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
 import { deckRepository } from '@/db/repositories';
@@ -20,13 +22,20 @@ import {
   saveTextFile,
   serializeBackup,
 } from '@/services/import-export';
+import {
+  useSettings,
+  type LanguageSetting,
+  type ThemeSetting,
+} from '@/store/settings';
 
 function baseName(name: string): string {
   return name.replace(/\.[^.]+$/, '').trim() || 'Imported';
 }
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const db = useDatabase();
+  const { language, theme, setLanguage, setTheme } = useSettings();
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmReplace, setConfirmReplace] = useState(false);
@@ -48,7 +57,7 @@ export default function SettingsScreen() {
       const backup = await exportBackup(db);
       const date = new Date().toISOString().slice(0, 10);
       await saveTextFile(`kondor-backup-${date}.json`, serializeBackup(backup));
-      return 'Backup exported.';
+      return t('settings.exportBackup') + ' ✓';
     });
 
   const importBackupHandler = () => {
@@ -59,18 +68,18 @@ export default function SettingsScreen() {
     setConfirmReplace(false);
     return run(async () => {
       const picked = await pickTextFile(['.json', 'application/json']);
-      if (!picked) return 'Cancelled.';
+      if (!picked) return t('common.cancel');
       const res = await importBackupReplace(db, parseBackup(picked.text));
-      return `Restored ${res.decks} decks, ${res.notes} notes, ${res.cards} cards.`;
+      return `${res.decks} / ${res.notes} / ${res.cards}`;
     });
   };
 
   const importCsvHandler = () =>
     run(async () => {
       const picked = await pickTextFile(['.csv', '.tsv', 'text/*']);
-      if (!picked) return 'Cancelled.';
+      if (!picked) return t('common.cancel');
       const cards = parseCardRows(picked.text);
-      if (cards.length === 0) return 'No front/back rows found in that file.';
+      if (cards.length === 0) return '0';
       const deck = await deckRepository.create(db, { name: baseName(picked.name) });
       for (const c of cards) {
         await createNote(db, {
@@ -79,30 +88,56 @@ export default function SettingsScreen() {
           fields: { Front: c.front, Back: c.back },
         });
       }
-      return `Imported ${cards.length} cards into “${deck.name}”.`;
+      return `${cards.length} → “${deck.name}”`;
     });
 
   const importApkgHandler = () =>
     run(async () => {
       const picked = await pickBinaryFile(['.apkg', 'application/zip']);
-      if (!picked) return 'Cancelled.';
+      if (!picked) return t('common.cancel');
       const res = await importApkg(db, picked.bytes, baseName(picked.name));
-      return `Imported ${res.notes} notes (${res.cards} cards) from Anki.`;
+      return `${res.notes} → “${baseName(picked.name)}”`;
     });
 
   return (
     <Screen padded={false}>
-      <Stack.Screen options={{ title: 'Import & Export' }} />
+      <Stack.Screen options={{ title: t('settings.title') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <Section
-          title="Backup"
-          subtitle="A full copy of your decks, cards, and review history as a Kondor JSON file.">
-          <Button title="Export backup" onPress={exportBackupHandler} disabled={busy} />
+        <Section title={t('settings.appearance')}>
+          <SegmentedControl<ThemeSetting>
+            value={theme}
+            onChange={setTheme}
+            options={[
+              { value: 'system', label: t('settings.themeSystem') },
+              { value: 'light', label: t('settings.themeLight') },
+              { value: 'dark', label: t('settings.themeDark') },
+            ]}
+          />
+        </Section>
+
+        <Section title={t('settings.language')}>
+          <SegmentedControl<LanguageSetting>
+            value={language}
+            onChange={setLanguage}
+            options={[
+              { value: 'system', label: t('settings.langSystem') },
+              { value: 'en', label: 'English' },
+              { value: 'fa', label: 'فارسی' },
+            ]}
+          />
+        </Section>
+
+        <Section title={t('settings.backup')} subtitle={t('settings.backupDesc')}>
+          <Button
+            title={t('settings.exportBackup')}
+            onPress={exportBackupHandler}
+            disabled={busy}
+          />
           <Button
             title={
               confirmReplace
-                ? 'Tap again — this replaces everything'
-                : 'Restore from backup'
+                ? t('settings.restoreConfirm')
+                : t('settings.restoreBackup')
             }
             variant={confirmReplace ? 'destructive' : 'secondary'}
             onPress={importBackupHandler}
@@ -111,25 +146,23 @@ export default function SettingsScreen() {
         </Section>
 
         <Section
-          title="Import cards"
-          subtitle="Bring cards in from a spreadsheet or from Anki. Each import creates a new deck.">
+          title={t('settings.importCards')}
+          subtitle={t('settings.importCardsDesc')}>
           <Button
-            title="Import CSV / TSV"
+            title={t('settings.importCsv')}
             variant="secondary"
             onPress={importCsvHandler}
             disabled={busy}
           />
           <Button
-            title="Import Anki .apkg"
+            title={t('settings.importApkg')}
             variant="secondary"
             onPress={importApkgHandler}
             disabled={busy}
           />
         </Section>
 
-        {status ? (
-          <ThemedText style={styles.status}>{status}</ThemedText>
-        ) : null}
+        {status ? <ThemedText style={styles.status}>{status}</ThemedText> : null}
       </ScrollView>
     </Screen>
   );
@@ -141,15 +174,17 @@ function Section({
   children,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   children: React.ReactNode;
 }) {
   return (
     <View style={styles.section}>
       <ThemedText type="smallBold">{title}</ThemedText>
-      <ThemedText type="small" themeColor="textSecondary">
-        {subtitle}
-      </ThemedText>
+      {subtitle ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {subtitle}
+        </ThemedText>
+      ) : null}
       {children}
     </View>
   );

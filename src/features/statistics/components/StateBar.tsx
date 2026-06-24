@@ -1,18 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import type { Statistics } from '../stats-service';
 
-const SEGMENTS: { key: keyof Statistics['byState']; label: string; color: string }[] = [
-  { key: 'new', label: 'New', color: '#3c87f7' },
-  { key: 'learning', label: 'Learning', color: '#e0a23b' },
-  { key: 'relearning', label: 'Relearning', color: '#e5484d' },
-  { key: 'review', label: 'Review', color: '#2eb872' },
+const SEGMENTS: { key: keyof Statistics['byState']; labelKey: string; color: string }[] = [
+  { key: 'new', labelKey: 'stats.new', color: '#3c87f7' },
+  { key: 'learning', labelKey: 'stats.learning', color: '#e0a23b' },
+  { key: 'relearning', labelKey: 'stats.relearning', color: '#e5484d' },
+  { key: 'review', labelKey: 'stats.review', color: '#2eb872' },
 ];
 
 /** Horizontal stacked bar of cards by scheduling state, with a legend. */
 export function StateBar({ byState }: { byState: Statistics['byState'] }) {
+  const { t } = useTranslation();
   const total =
     byState.new + byState.learning + byState.review + byState.relearning;
 
@@ -37,7 +39,7 @@ export function StateBar({ byState }: { byState: Statistics['byState'] }) {
           <View key={s.key} style={styles.legendItem}>
             <View style={[styles.dot, { backgroundColor: s.color }]} />
             <ThemedText type="small" themeColor="textSecondary">
-              {s.label} {byState[s.key]}
+              {t(s.labelKey)} {byState[s.key]}
             </ThemedText>
           </View>
         ))}

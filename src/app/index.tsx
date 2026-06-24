@@ -1,4 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,6 +16,7 @@ import { DeckCard } from '@/features/decks/DeckCard';
 import { useDecks } from '@/features/decks/use-decks';
 
 export default function DecksScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { data: decks, loading, error } = useDecks();
 
@@ -29,14 +31,14 @@ export default function DecksScreen() {
                 accessibilityLabel="Statistics"
                 onPress={() => router.push('/stats')}
                 hitSlop={12}>
-                <ThemedText type="link">Stats</ThemedText>
+                <ThemedText type="link">{t('decks.headerStats')}</ThemedText>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Import and export"
                 onPress={() => router.push('/settings')}
                 hitSlop={12}>
-                <ThemedText type="link">Data</ThemedText>
+                <ThemedText type="link">{t('decks.headerData')}</ThemedText>
               </Pressable>
             </View>
           ),
@@ -57,11 +59,11 @@ export default function DecksScreen() {
       {loading ? (
         <ActivityIndicator style={styles.center} />
       ) : error ? (
-        <EmptyState title="Something went wrong" message={error.message} />
+        <EmptyState title={t('decks.errorTitle')} message={error.message} />
       ) : !decks || decks.length === 0 ? (
         <EmptyState
-          title="No decks yet"
-          message="Tap + to create your first deck."
+          title={t('decks.emptyTitle')}
+          message={t('decks.emptyMessage')}
         />
       ) : (
         <FlatList

@@ -1,5 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Platform,
@@ -20,14 +21,21 @@ import { useStudySession } from '@/features/study/use-study-session';
 import { renderCard } from '@/services/templating';
 import { Grade } from '@/types';
 
-const GRADE_META: Record<Grade, { name: string; color: string }> = {
-  [Grade.Again]: { name: 'Again', color: '#e5484d' },
-  [Grade.Hard]: { name: 'Hard', color: '#e0a23b' },
-  [Grade.Good]: { name: 'Good', color: '#2eb872' },
-  [Grade.Easy]: { name: 'Easy', color: '#3c87f7' },
+const GRADE_COLOR: Record<Grade, string> = {
+  [Grade.Again]: '#e5484d',
+  [Grade.Hard]: '#e0a23b',
+  [Grade.Good]: '#2eb872',
+  [Grade.Easy]: '#3c87f7',
+};
+const GRADE_KEY: Record<Grade, string> = {
+  [Grade.Again]: 'study.again',
+  [Grade.Hard]: 'study.hard',
+  [Grade.Good]: 'study.good',
+  [Grade.Easy]: 'study.easy',
 };
 
 export default function StudyScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const session = useStudySession(id);
@@ -54,17 +62,17 @@ export default function StudyScreen() {
   const undoButton = canUndo ? (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Undo"
+      accessibilityLabel={t('study.undo')}
       onPress={undo}
       hitSlop={12}>
-      <ThemedText type="link">Undo</ThemedText>
+      <ThemedText type="link">{t('study.undo')}</ThemedText>
     </Pressable>
   ) : null;
 
   if (session.loading) {
     return (
       <Screen>
-        <Stack.Screen options={{ title: 'Study' }} />
+        <Stack.Screen options={{ title: t('study.title') }} />
         <ActivityIndicator style={styles.loader} />
       </Screen>
     );
@@ -73,8 +81,8 @@ export default function StudyScreen() {
   if (session.error) {
     return (
       <Screen>
-        <Stack.Screen options={{ title: 'Study' }} />
-        <EmptyState title="Couldn’t start session" message={session.error.message} />
+        <Stack.Screen options={{ title: t('study.title') }} />
+        <EmptyState title={t('study.errorTitle')} message={session.error.message} />
       </Screen>
     );
   }
@@ -83,39 +91,39 @@ export default function StudyScreen() {
     const s = session.summary;
     return (
       <Screen>
-        <Stack.Screen options={{ title: 'Study' }} />
+        <Stack.Screen options={{ title: t('study.title') }} />
         {s.total === 0 ? (
           <EmptyState
-            title="All caught up 🎉"
-            message="No cards are due in this deck right now."
+            title={t('study.allCaughtTitle')}
+            message={t('study.allCaughtMessage')}
           />
         ) : (
           <View style={styles.summary}>
             <ThemedText type="title" style={styles.center}>
-              Done!
+              {t('study.doneTitle')}
             </ThemedText>
             <ThemedText themeColor="textSecondary" style={styles.center}>
-              You reviewed {s.total} {s.total === 1 ? 'card' : 'cards'}.
+              {t('study.reviewed', { count: s.total })}
             </ThemedText>
             <View style={styles.summaryRow}>
-              <Tally label="Again" value={s.again} color={GRADE_META[Grade.Again].color} />
-              <Tally label="Hard" value={s.hard} color={GRADE_META[Grade.Hard].color} />
-              <Tally label="Good" value={s.good} color={GRADE_META[Grade.Good].color} />
-              <Tally label="Easy" value={s.easy} color={GRADE_META[Grade.Easy].color} />
+              <Tally label={t('study.again')} value={s.again} color={GRADE_COLOR[Grade.Again]} />
+              <Tally label={t('study.hard')} value={s.hard} color={GRADE_COLOR[Grade.Hard]} />
+              <Tally label={t('study.good')} value={s.good} color={GRADE_COLOR[Grade.Good]} />
+              <Tally label={t('study.easy')} value={s.easy} color={GRADE_COLOR[Grade.Easy]} />
             </View>
           </View>
         )}
-        <Button title="Finish" onPress={() => router.back()} />
+        <Button title={t('common.finish')} onPress={() => router.back()} />
       </Screen>
     );
   }
 
   return (
     <Screen padded={false}>
-      <Stack.Screen options={{ title: 'Study', headerRight: () => undoButton }} />
+      <Stack.Screen options={{ title: t('study.title'), headerRight: () => undoButton }} />
       <View style={styles.progress}>
         <ThemedText type="small" themeColor="textSecondary">
-          {session.remaining} left
+          {t('study.left', { count: session.remaining })}
         </ThemedText>
       </View>
 
@@ -147,21 +155,22 @@ export default function StudyScreen() {
 
       <View style={styles.controls}>
         {!revealed ? (
-          <Button title="Show answer" onPress={reveal} />
+          <Button title={t('study.showAnswer')} onPress={reveal} />
         ) : (
           <View style={styles.grades}>
             {session.predictions.map((p) => (
               <Pressable
                 key={p.grade}
                 accessibilityRole="button"
+                accessibilityLabel={t(GRADE_KEY[p.grade])}
                 disabled={busy}
                 onPress={() => grade(p.grade)}
                 style={({ pressed }) => [
                   styles.gradeButton,
-                  { backgroundColor: GRADE_META[p.grade].color, opacity: pressed ? 0.85 : 1 },
+                  { backgroundColor: GRADE_COLOR[p.grade], opacity: pressed ? 0.85 : 1 },
                 ]}>
                 <ThemedText type="smallBold" style={styles.gradeName}>
-                  {GRADE_META[p.grade].name}
+                  {t(GRADE_KEY[p.grade])}
                 </ThemedText>
                 <ThemedText type="small" style={styles.gradeLabel}>
                   {p.label}

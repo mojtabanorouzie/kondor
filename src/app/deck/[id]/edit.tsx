@@ -1,5 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -11,6 +12,7 @@ import { useDatabase } from '@/db';
 import { deckRepository } from '@/db/repositories';
 
 export default function EditDeckScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const db = useDatabase();
   const router = useRouter();
@@ -67,26 +69,32 @@ export default function EditDeckScreen() {
 
   return (
     <Screen padded={false}>
+      <Stack.Screen options={{ title: t('deckForm.titleEdit') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <TextField label="Name" value={name} onChangeText={setName} autoFocus />
         <TextField
-          label="Description (optional)"
+          label={t('deckForm.name')}
+          value={name}
+          onChangeText={setName}
+          autoFocus
+        />
+        <TextField
+          label={t('deckForm.description')}
           value={description}
           onChangeText={setDescription}
           multiline
         />
         <Button
-          title="Save changes"
+          title={t('deckForm.save')}
           onPress={save}
           disabled={name.trim().length === 0 || saving}
           loading={saving}
         />
 
         <ThemedText type="small" themeColor="textSecondary" style={styles.danger}>
-          Deleting a deck removes all of its cards.
+          {t('deckForm.deleteHint')}
         </ThemedText>
         <Button
-          title={confirmingDelete ? 'Tap again to confirm delete' : 'Delete deck'}
+          title={confirmingDelete ? t('deckForm.deleteConfirm') : t('deckForm.delete')}
           variant="destructive"
           onPress={remove}
         />

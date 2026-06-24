@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -7,6 +8,13 @@ import { Spacing } from '@/constants/theme';
 import type { NoteKind } from '@/types';
 
 import { fieldsForKind } from './card-service';
+
+const FIELD_LABEL: Record<string, string> = {
+  Front: 'cardForm.front',
+  Back: 'cardForm.back',
+  Text: 'cardForm.text',
+  Extra: 'cardForm.extra',
+};
 
 /** Whether the required fields for a kind are filled. */
 export function isNoteValid(
@@ -27,16 +35,17 @@ export function KindToggle({
   value: NoteKind;
   onChange: (kind: NoteKind) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.toggle}>
       <Button
-        title="Basic"
+        title={t('cardForm.basic')}
         variant={value === 'basic' ? 'primary' : 'secondary'}
         onPress={() => onChange('basic')}
         style={styles.toggleButton}
       />
       <Button
-        title="Cloze"
+        title={t('cardForm.cloze')}
         variant={value === 'cloze' ? 'primary' : 'secondary'}
         onPress={() => onChange('cloze')}
         style={styles.toggleButton}
@@ -54,12 +63,13 @@ export function NoteFields({
   fields: Record<string, string>;
   onChange: (field: string, value: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       {fieldsForKind(kind).map((name, i) => (
         <TextField
           key={name}
-          label={name === 'Extra' ? 'Extra (optional)' : name}
+          label={t(FIELD_LABEL[name] ?? name)}
           value={fields[name] ?? ''}
           onChangeText={(v) => onChange(name, v)}
           autoFocus={i === 0}
@@ -68,8 +78,7 @@ export function NoteFields({
       ))}
       {kind === 'cloze' ? (
         <ThemedText type="small" themeColor="textSecondary">
-          Wrap hidden parts like {'{{c1::answer}}'}. Each c1, c2… makes its own
-          card.
+          {t('cardForm.clozeHint', { example: '{{c1::answer}}' })}
         </ThemedText>
       ) : null}
     </>

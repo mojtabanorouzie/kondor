@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   ScrollView,
@@ -16,19 +17,20 @@ import { StateBar } from './components/StateBar';
 import { useStatistics } from './use-statistics';
 
 export function StatsView({ deckId }: { deckId?: string }) {
+  const { t } = useTranslation();
   const { data: stats, loading, error } = useStatistics(deckId);
 
   if (loading) return <ActivityIndicator style={styles.loader} />;
   if (error) {
-    return <EmptyState title="Couldn’t load stats" message={error.message} />;
+    return <EmptyState title={t('stats.errorTitle')} message={error.message} />;
   }
   if (!stats) return null;
 
   if (stats.totalCards === 0) {
     return (
       <EmptyState
-        title="No data yet"
-        message="Add cards and study to see your statistics."
+        title={t('stats.noDataTitle')}
+        message={t('stats.noDataMessage')}
       />
     );
   }
@@ -36,39 +38,41 @@ export function StatsView({ deckId }: { deckId?: string }) {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.tiles}>
-        <Tile label="Cards" value={stats.totalCards} />
-        <Tile label="Reviews today" value={stats.reviewsToday} />
+        <Tile label={t('stats.cards')} value={stats.totalCards} />
+        <Tile label={t('stats.reviewsToday')} value={stats.reviewsToday} />
         <Tile
-          label="Streak"
-          value={stats.streak === 1 ? '1 day' : `${stats.streak} days`}
+          label={t('stats.streak')}
+          value={t('stats.streakDays', { count: stats.streak })}
         />
         <Tile
-          label="Retention"
+          label={t('stats.retention')}
           value={stats.retentionPct === null ? '—' : `${stats.retentionPct}%`}
         />
       </View>
 
-      <Section title="Card states">
+      <Section title={t('stats.cardStates')}>
         <StateBar byState={stats.byState} />
       </Section>
 
-      <Section title="Reviews (last 30 days)">
+      <Section title={t('stats.reviews30')}>
         <BarChart
           values={stats.reviewsByDay.map((d) => d.count)}
           color="#2eb872"
-          caption={`${stats.totalReviews} reviews in the window`}
+          caption={t('stats.reviewsInWindow', { count: stats.totalReviews })}
         />
       </Section>
 
-      <Section title="Due forecast (next 14 days)">
+      <Section title={t('stats.forecast')}>
         <BarChart
           values={stats.forecast.map((d) => d.count)}
           color="#3c87f7"
-          caption={`${stats.forecast.reduce((s, d) => s + d.count, 0)} cards upcoming`}
+          caption={t('stats.upcoming', {
+            count: stats.forecast.reduce((s, d) => s + d.count, 0),
+          })}
         />
       </Section>
 
-      <Section title="Activity">
+      <Section title={t('stats.activity')}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Heatmap data={stats.heatmap} />
         </ScrollView>

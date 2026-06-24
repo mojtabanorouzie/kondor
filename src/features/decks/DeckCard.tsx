@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -12,6 +13,7 @@ export function DeckCard({
   deck: DeckWithCounts;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Pressable
       accessibilityRole="button"
@@ -23,13 +25,17 @@ export function DeckCard({
             {deck.name}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {deck.total} {deck.total === 1 ? 'card' : 'cards'}
+            {t('decks.cards', { count: deck.total })}
           </ThemedText>
         </View>
         <View style={styles.counts}>
-          <Count label="New" value={deck.newCount} color="#3c87f7" />
-          <Count label="Learning" value={deck.learningCount} color="#e0a23b" />
-          <Count label="Due" value={deck.dueCount} color="#2eb872" />
+          <Count label={t('decks.new')} value={deck.newCount} color="#3c87f7" />
+          <Count
+            label={t('decks.learning')}
+            value={deck.learningCount}
+            color="#e0a23b"
+          />
+          <Count label={t('decks.due')} value={deck.dueCount} color="#2eb872" />
         </View>
       </ThemedView>
     </Pressable>
