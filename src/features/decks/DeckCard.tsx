@@ -6,13 +6,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { DeckWithCounts } from '@/db/repositories';
 
-export function DeckCard({
-  deck,
-  onPress,
-}: {
-  deck: DeckWithCounts;
-  onPress: () => void;
-}) {
+export function DeckCard({ deck, onPress }: { deck: DeckWithCounts; onPress: () => void }) {
   const { t } = useTranslation();
   return (
     <Pressable
@@ -30,11 +24,7 @@ export function DeckCard({
         </View>
         <View style={styles.counts}>
           <Count label={t('decks.new')} value={deck.newCount} color="#3c87f7" />
-          <Count
-            label={t('decks.learning')}
-            value={deck.learningCount}
-            color="#e0a23b"
-          />
+          <Count label={t('decks.learning')} value={deck.learningCount} color="#e0a23b" />
           <Count label={t('decks.due')} value={deck.dueCount} color="#2eb872" />
         </View>
       </ThemedView>
@@ -42,15 +32,7 @@ export function DeckCard({
   );
 }
 
-function Count({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: string;
-}) {
+function Count({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <View style={styles.count}>
       <ThemedText type="smallBold" style={{ color }}>

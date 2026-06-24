@@ -1,14 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { CardContent } from '@/components/card-content';
 import { EmptyState } from '@/components/empty-state';
@@ -93,10 +86,7 @@ export default function StudyScreen() {
       <Screen>
         <Stack.Screen options={{ title: t('study.title') }} />
         {s.total === 0 ? (
-          <EmptyState
-            title={t('study.allCaughtTitle')}
-            message={t('study.allCaughtMessage')}
-          />
+          <EmptyState title={t('study.allCaughtTitle')} message={t('study.allCaughtMessage')} />
         ) : (
           <View style={styles.summary}>
             <ThemedText type="title" style={styles.center}>
@@ -127,15 +117,10 @@ export default function StudyScreen() {
         </ThemedText>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.cardArea}
-        keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.cardArea} keyboardShouldPersistTaps="handled">
         {current ? (
           <CardContent
-            content={
-              renderCard(current.noteKind, current.noteFields, current.templateIndex)
-                .front
-            }
+            content={renderCard(current.noteKind, current.noteFields, current.templateIndex).front}
             type="subtitle"
           />
         ) : null}
@@ -143,10 +128,7 @@ export default function StudyScreen() {
           <>
             <ThemedView type="backgroundElement" style={styles.divider} />
             <CardContent
-              content={
-                renderCard(current.noteKind, current.noteFields, current.templateIndex)
-                  .back
-              }
+              content={renderCard(current.noteKind, current.noteFields, current.templateIndex).back}
               type="default"
             />
           </>

@@ -1,10 +1,6 @@
 import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
-import {
-  openDatabaseAsync,
-  type SQLiteBindValue,
-  type SQLiteDatabase,
-} from 'expo-sqlite';
+import { openDatabaseAsync, type SQLiteBindValue, type SQLiteDatabase } from 'expo-sqlite';
 
 import { runMigrations } from './migrate';
 import * as schema from './schema';
@@ -41,8 +37,7 @@ async function execute(
 
   const statement = await expo.prepareAsync(sql);
   try {
-    const result =
-      await statement.executeForRawResultAsync<Record<string, unknown>>(params);
+    const result = await statement.executeForRawResultAsync<Record<string, unknown>>(params);
     const rows = (await result.getAllAsync()) as unknown[][];
     return { rows: method === 'get' ? (rows[0] ?? []) : rows };
   } finally {
@@ -56,8 +51,7 @@ export async function openDatabase(): Promise<Database> {
   await runMigrations(expo);
 
   const db = drizzleProxy(
-    (sql, params, method) =>
-      execute(expo, sql, params as SQLiteBindValue[], method),
+    (sql, params, method) => execute(expo, sql, params as SQLiteBindValue[], method),
     { schema },
   );
 

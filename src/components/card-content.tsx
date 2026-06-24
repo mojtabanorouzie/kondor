@@ -32,12 +32,7 @@ export function CardContent({ content, type = 'default', align = 'center' }: Car
         const image = trimmed.match(IMAGE_RE);
         if (image) {
           return (
-            <Image
-              key={i}
-              source={{ uri: image[1] }}
-              style={styles.image}
-              contentFit="contain"
-            />
+            <Image key={i} source={{ uri: image[1] }} style={styles.image} contentFit="contain" />
           );
         }
         if (trimmed === '') {

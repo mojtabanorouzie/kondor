@@ -15,9 +15,7 @@ function shade(count: number, max: number): string {
 /** Calendar heatmap of daily review counts (weekday rows × week columns). */
 export function Heatmap({ data }: { data: DayCount[] }) {
   const max = Math.max(1, ...data.map((d) => d.count));
-  const firstWeekday = data[0]
-    ? new Date(`${data[0].day}T00:00:00`).getDay()
-    : 0;
+  const firstWeekday = data[0] ? new Date(`${data[0].day}T00:00:00`).getDay() : 0;
 
   const cols = Math.ceil((data.length + firstWeekday) / 7);
   const width = cols * (CELL + GAP);

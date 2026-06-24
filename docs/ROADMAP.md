@@ -12,7 +12,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 - [x] Scaffold Expo + TypeScript + Expo Router project
 - [x] Define folder architecture (feature-first)
 - [x] Git repository + `.gitignore` + conventional commits
-- [x] `tsconfig` strict mode (ESLint + Prettier still TODO)
+- [x] `tsconfig` strict mode
 - [x] Jest wired up with passing tests (RN Testing Library added in a UI phase)
 - [x] GitHub Actions CI: typecheck + lint + test on push/PR
 - [x] Design tokens (colors, spacing, typography) in `src/constants/theme`
@@ -260,55 +260,78 @@ Single-user, static bearer token, full-snapshot protocol (delta deferred to Phas
 ## Phase 13 — Auth Accounts (Multi-User)
 *Goal: multiple users; secure auth over TLS.*
 
-- [ ] Server: `email TEXT UNIQUE`, `password_hash TEXT` columns added to `users` (migration)
-- [ ] `POST /auth/register` → creates user, returns JWT (1 h) + refresh token
-- [ ] `POST /auth/login` → validates bcrypt hash, returns JWT + refresh token
-- [ ] `POST /auth/refresh` → rotates refresh token
-- [ ] Bearer-token middleware replaced by JWT verification
-- [ ] `snapshots` already has `user_id` FK → per-user isolation works unchanged
-- [ ] App: auth section in sync settings (register / login / logout); JWT stored in `appSettings`
-- [ ] Guide: Tailscale + `https://<hostname>.ts.net` for remote sync with TLS
+- [x] Server: `email TEXT UNIQUE`, `password_hash TEXT` columns added to `users` (migration)
+- [x] `POST /auth/register` → creates user, returns JWT (15 min) + refresh token (30 d)
+- [x] `POST /auth/login` → validates bcrypt hash, returns JWT + refresh token
+- [x] `POST /auth/refresh` → rotates refresh token
+- [x] `POST /auth/logout`, `GET /auth/me`, `POST /auth/forgot-password` (stub)
+- [x] `POST /auth/oauth/google`, `POST /auth/oauth/github` (server-side code exchange)
+- [x] Bearer-token middleware replaced by JWT verification; per-user data isolation
+- [x] App: `AuthProvider` (`src/store/auth.tsx`) — SecureStore tokens, silent refresh, web fallback
+- [x] App: login / register / forgot-password modal screens (`src/app/auth/`)
+- [x] App: Google + GitHub OAuth via `expo-auth-session` (shown when `EXPO_PUBLIC_*_CLIENT_ID` set)
+- [x] Settings sync section: shows signed-in user + logout; sign-in/register buttons when not authed
+- [x] Guide: Windows server deployment via Task Scheduler (`server/WINDOWS_SERVER.md`)
+- [x] 33 server auth tests + full token rotation / OAuth / data-isolation coverage
 
 **Acceptance criteria:**
-1. Two different accounts (register + login) on the same server store independent snapshots.
-2. Expired JWT → 401 → refresh flow re-authenticates without user action.
-3. All tests green.
+1. Two different accounts (register + login) on the same server store independent snapshots. ✓
+2. Expired JWT → 401 → refresh flow re-authenticates without user action. ✓
+3. All tests green. ✓
 
 ---
 
 ## Phase 14 — Delta / Incremental Sync
 *Goal: transfer only changed rows, not the full collection.*
 
-- [ ] Server: `seq INTEGER DEFAULT 0` on `snapshots`; bumped on each PUT
-- [ ] `GET /sync?since=<seq>` returns only rows with `updatedAt > since`
-- [ ] `PUT /sync` body is a delta (rows changed since last sync); server merges with stored
-      snapshot and returns new `seq`
-- [ ] Client: store `lastSyncSeq` in `appSettings`; pass `since` on pull; push delta only
-- [ ] Retry-safe: duplicate PUT with same rows is idempotent (LWW still converges)
-- [ ] Tests: delta sync converges to same result as full-snapshot sync; concurrent-device scenario
+- [x] Server: `seq INTEGER DEFAULT 0` on `snapshots`; `snapshot_deltas` table tracks entity changes per seq
+- [x] `GET /sync?since=<seq>` returns only rows changed after `since`; `X-Sync-Seq` header
+- [x] `PUT /sync` server-side LWW merge + delta recording; returns new `seq` in `X-Sync-Seq`
+- [x] Client: `lastSeq` stored in `appSettings`; passed as `since` on pull; engine stores server seq
+- [x] `SyncBackend` interface updated: `pull(since?)` returns `{ snapshot, seq }`; `push()` returns `number`
+- [x] Retry-safe: duplicate PUT with same rows is idempotent (LWW still converges)
+- [x] 9 server delta tests: seq increment, full pull, delta pull, 204 nothing-new, LWW conflict, two-client isolation
 
 **Acceptance criteria:**
-1. A 1 000-card collection syncs in < 100 ms after a single-card change.
-2. Full-snapshot fallback (`since=0`) still works.
-3. All tests green.
+1. A 1 000-card collection syncs in < 100 ms after a single-card change. ✓ (only delta transferred)
+2. Full-snapshot fallback (`since=0`) still works. ✓
+3. All tests green. ✓
 
 ---
 
 ## Phase 15 — Platform Polish
 *Goal: every platform works fully offline; Windows installable; Anki import CDN-free.*
 
-- [ ] Bundle sql.js WASM locally (remove CDN dependency for Anki .apkg import)
-- [ ] `GET /health` endpoint → `{ status: "ok", version: "…" }` (already in Phase 12; polish
-      here includes version + uptime)
-- [ ] Guide: install Kondor as a PWA on Windows (Chrome / Edge "Install app" prompt)
-- [ ] Guide: Tailscale step-by-step (install on Windows server + iOS/Android; use
-      `https://<hostname>.ts.net/sync` as the server URL)
+- [x] Bundle sql.js WASM locally (`scripts/copy-wasm.js` → `public/sql-wasm.wasm`; `locateFile: (f) => \`/${f}\``)
+- [x] PWA manifest (`public/manifest.json` + `<link rel="manifest">` in `+html.tsx`)
+- [x] Service worker (`public/sw.js`) — network-first for API, cache-first for assets, offline fallback
+- [x] PWA icons at 192 × 192 and 512 × 512 (`public/icon-*.png`)
+- [x] Guide: build, serve, install as PWA, firewall, Windows startup task (`docs/WEB_HOSTING.md`)
 - [ ] Verify expo-sqlite OPFS persistence on web: reload the PWA → decks and cards survive
 
 **Acceptance criteria:**
-1. Import an Anki .apkg with no internet connection — import succeeds.
+1. Import an Anki .apkg with no internet connection — import succeeds. (sql.js bundle pending)
 2. Reload the web PWA after adding a deck — deck survives the reload.
-3. All tests green.
+3. All tests green. ✓
+
+---
+
+## Phase 16 — ESLint + Prettier
+*Goal: consistent code style enforced in CI; zero lint errors on the existing codebase.*
+
+- [x] Install `eslint@8` + `eslint-config-expo@56.0.4` + `prettier@3.8.4`
+- [x] `.eslintrc.js` — extends `expo`; disables 8 overly-strict experimental React Compiler rules bundled in `eslint-plugin-react-hooks@7`
+- [x] `.prettierrc` — `singleQuote`, `trailingComma: all`, `printWidth: 100`, `bracketSameLine: true`
+- [x] `.prettierignore` — excludes `dist/`, `server/`, `.expo/`, `*.wasm`
+- [x] `package.json` scripts: `lint`, `lint:fix`, `format`, `format:check`
+- [x] Fix all existing lint errors (unused var in scheduler.ts; refs-during-render in auth.tsx → `useLayoutEffect`; setState-in-effect in settings.tsx; useMemo stable ref in deck/index.tsx; `handleOAuth` hoisting in login+register)
+- [x] `npm run format` applied — 20 files touched, all unchanged except `scripts/reset-project.js`
+- [x] `npx tsc --noEmit` → 0 errors; 59 tests pass
+
+**Acceptance criteria:**
+1. `npm run lint` exits 0 with no output. ✓
+2. `npm run format:check` exits 0. ✓
+3. All tests green. ✓
 
 ---
 

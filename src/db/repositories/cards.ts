@@ -43,10 +43,7 @@ export const cardRepository = {
   },
 
   /** A deck's live cards joined with their note content + kind, newest first. */
-  async getByDeckWithNotes(
-    db: Database,
-    deckId: string,
-  ): Promise<CardWithNote[]> {
+  async getByDeckWithNotes(db: Database, deckId: string): Promise<CardWithNote[]> {
     const rows = await db
       .select({ card: cards, noteFields: notes.fields, noteKind: noteTypes.kind })
       .from(cards)
@@ -90,11 +87,7 @@ export const cardRepository = {
   },
 
   /** Live cards in a deck that are due at or before `now` (epoch ms). */
-  async getDue(
-    db: Database,
-    deckId: string,
-    now: number = Date.now(),
-  ): Promise<CardRow[]> {
+  async getDue(db: Database, deckId: string, now: number = Date.now()): Promise<CardRow[]> {
     return db
       .select()
       .from(cards)
@@ -119,9 +112,6 @@ export const cardRepository = {
   /** Soft-delete a single card. */
   async remove(db: Database, id: string): Promise<void> {
     const now = Date.now();
-    await db
-      .update(cards)
-      .set({ deletedAt: now, updatedAt: now })
-      .where(eq(cards.id, id));
+    await db.update(cards).set({ deletedAt: now, updatedAt: now }).where(eq(cards.id, id));
   },
 };

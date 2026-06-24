@@ -1,9 +1,5 @@
 import { useDatabase } from '@/db';
-import {
-  deckRepository,
-  noteTypeRepository,
-  type DeckWithCounts,
-} from '@/db/repositories';
+import { deckRepository, noteTypeRepository, type DeckWithCounts } from '@/db/repositories';
 import { seedDatabase } from '@/db/seed';
 import { useAsyncData } from '@/hooks/use-async-data';
 

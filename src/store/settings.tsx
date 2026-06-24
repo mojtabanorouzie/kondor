@@ -1,12 +1,5 @@
 import { getLocales } from 'expo-localization';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { I18nManager, Platform, useColorScheme } from 'react-native';
 
 import { useDatabase } from '@/db';
@@ -27,6 +20,7 @@ interface SettingsValue {
   hasSeenOnboarding: boolean;
   setLanguage: (l: LanguageSetting) => void;
   setTheme: (t: ThemeSetting) => void;
+  completeOnboarding: () => void;
 }
 
 const SettingsContext = createContext<SettingsValue | null>(null);
@@ -105,21 +99,24 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     [db],
   );
 
+  const completeOnboarding = useCallback(() => {
+    setHasSeenOnboarding(true);
+    settingsRepository.set(db, KEY_ONBOARDING, '1');
+  }, [db]);
+
   const resolvedScheme: ResolvedScheme =
     theme === 'system' ? (system === 'dark' ? 'dark' : 'light') : theme;
 
   const value = useMemo(
-    () => ({ language, theme, hasSeenOnboarding, setLanguage, setTheme }),
-    [language, theme, hasSeenOnboarding, setLanguage, setTheme],
+    () => ({ language, theme, hasSeenOnboarding, setLanguage, setTheme, completeOnboarding }),
+    [language, theme, hasSeenOnboarding, setLanguage, setTheme, completeOnboarding],
   );
 
   if (!loaded) return null;
 
   return (
     <SettingsContext.Provider value={value}>
-      <SchemeContext.Provider value={resolvedScheme}>
-        {children}
-      </SchemeContext.Provider>
+      <SchemeContext.Provider value={resolvedScheme}>{children}</SchemeContext.Provider>
     </SettingsContext.Provider>
   );
 }

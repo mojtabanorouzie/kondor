@@ -67,9 +67,7 @@ function toFsrs(card: SchedulingState): FsrsCard {
     lapses: card.lapses,
     learning_steps: card.learningSteps,
     state: card.state as unknown as FsrsState,
-    last_review: card.lastReviewedAt
-      ? new Date(card.lastReviewedAt)
-      : undefined,
+    last_review: card.lastReviewedAt ? new Date(card.lastReviewedAt) : undefined,
   };
 }
 
@@ -96,11 +94,7 @@ export function rateCard(
   now: number = Date.now(),
   scheduler: FSRS = createScheduler(),
 ): ReviewOutcome {
-  const { card: next, log } = scheduler.next(
-    toFsrs(card),
-    new Date(now),
-    grade as unknown as FsrsGrade,
-  );
+  const { card: next } = scheduler.next(toFsrs(card), new Date(now), grade as unknown as FsrsGrade);
 
   return {
     card: fromFsrs(next),

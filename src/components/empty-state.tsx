@@ -3,13 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 
-export function EmptyState({
-  title,
-  message,
-}: {
-  title: string;
-  message?: string;
-}) {
+export function EmptyState({ title, message }: { title: string; message?: string }) {
   return (
     <View style={styles.container}>
       <ThemedText type="subtitle" style={styles.center}>

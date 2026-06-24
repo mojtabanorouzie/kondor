@@ -3,12 +3,7 @@ import { cardRepository, reviewLogRepository } from '@/db/repositories';
 import type { CardRow } from '@/db/schema';
 import type { Grade } from '@/types';
 
-import {
-  createScheduler,
-  rateCard,
-  type ReviewOutcome,
-  type SchedulingState,
-} from './scheduler';
+import { createScheduler, rateCard, type ReviewOutcome, type SchedulingState } from './scheduler';
 import { DEFAULT_SRS_CONFIG, type SrsConfig } from './params';
 
 function toState(card: CardRow): SchedulingState {

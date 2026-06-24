@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { router, Stack } from 'expo-router';
 import * as Updates from 'expo-updates';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -12,7 +12,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { TextField } from '@/components/ui/text-field';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
-import { deckRepository, settingsRepository } from '@/db/repositories';
+import { deckRepository } from '@/db/repositories';
 import { createNote } from '@/features/cards/card-service';
 import {
   exportBackup,
@@ -26,11 +26,8 @@ import {
   serializeBackup,
 } from '@/services/import-export';
 import { localStorageBackend, restSyncBackend, sync } from '@/services/sync';
-import {
-  useSettings,
-  type LanguageSetting,
-  type ThemeSetting,
-} from '@/store/settings';
+import { useAuth } from '@/store/auth';
+import { useSettings, type LanguageSetting, type ThemeSetting } from '@/store/settings';
 
 function baseName(name: string): string {
   return name.replace(/\.[^.]+$/, '').trim() || 'Imported';
@@ -41,20 +38,15 @@ const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const db = useDatabase();
+  const auth = useAuth();
   const { language, theme, setLanguage, setTheme } = useSettings();
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmReplace, setConfirmReplace] = useState(false);
-  const [serverUrl, setServerUrl] = useState('');
-  const [syncToken, setSyncToken] = useState('');
 
-  // Load persisted sync settings on mount.
-  useEffect(() => {
-    settingsRepository.getAll(db).then((s) => {
-      setServerUrl(s['sync.serverUrl'] ?? '');
-      setSyncToken(s['sync.token'] ?? '');
-    });
-  }, [db]);
+  // Editable draft of the server URL — initialised from AuthProvider on mount.
+  // Changes are written through to AuthProvider immediately via auth.setServerUrl.
+  const [serverUrlDraft, setServerUrlDraft] = useState(auth.serverUrl);
 
   async function run(fn: () => Promise<string>) {
     setBusy(true);
@@ -117,18 +109,21 @@ export default function SettingsScreen() {
 
   const syncHandler = () =>
     run(async () => {
-      const url = serverUrl.trim();
-      const token = syncToken.trim();
-      const backend = url
-        ? restSyncBackend(url, token || undefined)
-        : localStorageBackend();
+      const url = auth.serverUrl.trim();
+      if (!url) {
+        const res = await sync(db, localStorageBackend());
+        return t('settings.syncDone', { cards: res.cards });
+      }
+      if (!auth.user) {
+        return t('settings.syncSignInRequired');
+      }
+      const backend = restSyncBackend(url, auth.getValidToken);
       const res = await sync(db, backend);
       return t('settings.syncDone', { cards: res.cards });
     });
 
   const checkUpdateHandler = () =>
     run(async () => {
-      // OTA update checks only work in a real build (not Expo Go dev / web)
       if (Platform.OS === 'web' || __DEV__) {
         return t('settings.updateNone');
       }
@@ -170,32 +165,53 @@ export default function SettingsScreen() {
         <Section title={t('settings.sync')} subtitle={t('settings.syncDesc')}>
           <TextField
             label={t('settings.syncServerUrl')}
-            value={serverUrl}
+            value={serverUrlDraft}
             onChangeText={(v) => {
-              setServerUrl(v);
-              settingsRepository.set(db, 'sync.serverUrl', v);
+              setServerUrlDraft(v);
+              auth.setServerUrl(v);
             }}
             placeholder={t('settings.syncServerPlaceholder')}
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="url"
           />
-          <TextField
-            label={t('settings.syncToken')}
-            value={syncToken}
-            onChangeText={(v) => {
-              setSyncToken(v);
-              settingsRepository.set(db, 'sync.token', v);
-            }}
-            placeholder={t('settings.syncTokenPlaceholder')}
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureTextEntry
-          />
+
+          {/* Auth status row */}
+          {auth.serverUrl ? (
+            auth.user ? (
+              <View style={styles.authRow}>
+                <ThemedText type="small" themeColor="textSecondary" style={styles.authEmail}>
+                  {t('auth.loggedInAs')} {auth.user.email}
+                </ThemedText>
+                <Button
+                  title={t('auth.signOut')}
+                  variant="destructive"
+                  onPress={() => auth.logout()}
+                  style={styles.authBtn}
+                />
+              </View>
+            ) : (
+              <View style={styles.authRow}>
+                <Button
+                  title={t('settings.syncSignIn')}
+                  onPress={() => router.push('/auth/login')}
+                  style={styles.authBtn}
+                />
+                <Button
+                  title={t('settings.syncRegister')}
+                  variant="secondary"
+                  onPress={() => router.push('/auth/register')}
+                  style={styles.authBtn}
+                />
+              </View>
+            )
+          ) : null}
+
           <Button
             title={t('settings.syncNow')}
             onPress={syncHandler}
             disabled={busy}
+            variant="secondary"
           />
         </Section>
 
@@ -206,20 +222,14 @@ export default function SettingsScreen() {
             disabled={busy}
           />
           <Button
-            title={
-              confirmReplace
-                ? t('settings.restoreConfirm')
-                : t('settings.restoreBackup')
-            }
+            title={confirmReplace ? t('settings.restoreConfirm') : t('settings.restoreBackup')}
             variant={confirmReplace ? 'destructive' : 'secondary'}
             onPress={importBackupHandler}
             disabled={busy}
           />
         </Section>
 
-        <Section
-          title={t('settings.importCards')}
-          subtitle={t('settings.importCardsDesc')}>
+        <Section title={t('settings.importCards')} subtitle={t('settings.importCardsDesc')}>
           <Button
             title={t('settings.importCsv')}
             variant="secondary"
@@ -292,4 +302,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
   },
   version: { textAlign: 'center', marginTop: Spacing.two },
+  authRow: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap', alignItems: 'center' },
+  authEmail: { flex: 1, minWidth: 150 },
+  authBtn: { flexShrink: 0 },
 });

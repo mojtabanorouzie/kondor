@@ -28,11 +28,7 @@ function splitContent(content: string): { answer: string; hint?: string } {
  *   their answer.
  * - back: every cloze shows its answer, with the active one **highlighted**.
  */
-export function renderCloze(
-  text: string,
-  activeOrdinal: number,
-  side: 'front' | 'back',
-): string {
+export function renderCloze(text: string, activeOrdinal: number, side: 'front' | 'back'): string {
   return text.replace(CLOZE_RE, (_full, num: string, content: string) => {
     const ordinal = Number(num);
     const { answer, hint } = splitContent(content);

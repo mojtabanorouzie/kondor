@@ -4,10 +4,7 @@ import type { Database } from '../client';
 import { cards, notes, type NewNoteRow, type NoteRow } from '../schema';
 import { uuid } from '@/utils/id';
 
-export type CreateNoteInput = Omit<
-  NewNoteRow,
-  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
->;
+export type CreateNoteInput = Omit<NewNoteRow, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
 
 export const noteRepository = {
   async create(db: Database, input: CreateNoteInput): Promise<NoteRow> {
@@ -50,13 +47,7 @@ export const noteRepository = {
   /** Soft-delete the note and cascade to all its cards. */
   async remove(db: Database, id: string): Promise<void> {
     const now = Date.now();
-    await db
-      .update(cards)
-      .set({ deletedAt: now, updatedAt: now })
-      .where(eq(cards.noteId, id));
-    await db
-      .update(notes)
-      .set({ deletedAt: now, updatedAt: now })
-      .where(eq(notes.id, id));
+    await db.update(cards).set({ deletedAt: now, updatedAt: now }).where(eq(cards.noteId, id));
+    await db.update(notes).set({ deletedAt: now, updatedAt: now }).where(eq(notes.id, id));
   },
 };

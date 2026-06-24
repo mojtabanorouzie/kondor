@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# sql.js WASM — copied from node_modules by `npm run export:web`
+/public/sql-wasm.wasm

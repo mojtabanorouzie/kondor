@@ -13,15 +13,13 @@ export interface AsyncData<T> {
  * time the screen regains focus, so lists refresh after a create/edit/delete
  * on a pushed screen without manual cache wiring.
  */
-export function useAsyncData<T>(
-  run: () => Promise<T>,
-  deps: unknown[],
-): AsyncData<T> {
+export function useAsyncData<T>(run: () => Promise<T>, deps: unknown[]): AsyncData<T> {
   const [data, setData] = useState<T>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // run is intentionally rebuilt when deps change.
+  // run is intentionally rebuilt when deps change; the dynamic dep array is
+  // the whole point of this hook's API.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const load = useCallback(run, deps);
 

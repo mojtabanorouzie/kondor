@@ -17,9 +17,7 @@ export const DEFAULT_SRS_CONFIG: SrsConfig = {
 };
 
 /** Translate our config into ts-fsrs parameters (with sane FSRS defaults). */
-export function toFsrsParameters(
-  config: SrsConfig = DEFAULT_SRS_CONFIG,
-): FSRSParameters {
+export function toFsrsParameters(config: SrsConfig = DEFAULT_SRS_CONFIG): FSRSParameters {
   return generatorParameters({
     request_retention: config.requestRetention,
     maximum_interval: config.maximumInterval,

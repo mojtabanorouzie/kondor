@@ -7,10 +7,7 @@ import { uuid } from '@/utils/id';
 export type CreateNoteTypeInput = Omit<NewNoteTypeRow, 'id'>;
 
 export const noteTypeRepository = {
-  async create(
-    db: Database,
-    input: CreateNoteTypeInput,
-  ): Promise<NoteTypeRow> {
+  async create(db: Database, input: CreateNoteTypeInput): Promise<NoteTypeRow> {
     const [created] = await db
       .insert(noteTypes)
       .values({ id: uuid(), ...input })

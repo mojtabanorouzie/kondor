@@ -1,12 +1,6 @@
 import { Redirect, Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Screen } from '@/components/screen';
@@ -65,20 +59,14 @@ export default function DecksScreen() {
       ) : error ? (
         <EmptyState title={t('decks.errorTitle')} message={error.message} />
       ) : !decks || decks.length === 0 ? (
-        <EmptyState
-          title={t('decks.emptyTitle')}
-          message={t('decks.emptyMessage')}
-        />
+        <EmptyState title={t('decks.emptyTitle')} message={t('decks.emptyMessage')} />
       ) : (
         <FlatList
           data={decks}
           keyExtractor={(d) => d.id}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <DeckCard
-              deck={item}
-              onPress={() => router.push(`/deck/${item.id}`)}
-            />
+            <DeckCard deck={item} onPress={() => router.push(`/deck/${item.id}`)} />
           )}
         />
       )}

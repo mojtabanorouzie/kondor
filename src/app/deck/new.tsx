@@ -51,12 +51,7 @@ export default function NewDeckScreen() {
           placeholder={t('deckForm.descriptionPlaceholder')}
           multiline
         />
-        <Button
-          title={t('deckForm.create')}
-          onPress={save}
-          disabled={!canSave}
-          loading={saving}
-        />
+        <Button title={t('deckForm.create')} onPress={save} disabled={!canSave} loading={saving} />
       </ScrollView>
     </Screen>
   );

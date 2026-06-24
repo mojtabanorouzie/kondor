@@ -9,11 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 import { useDatabase } from '@/db';
-import {
-  deleteCardByNote,
-  loadNoteForEdit,
-  updateNote,
-} from '@/features/cards/card-service';
+import { deleteCardByNote, loadNoteForEdit, updateNote } from '@/features/cards/card-service';
 import { isNoteValid, NoteFields } from '@/features/cards/note-form';
 import type { NoteKind } from '@/types';
 
@@ -48,8 +44,7 @@ export default function EditCardScreen() {
     };
   }, [db, cardId]);
 
-  const setField = (name: string, value: string) =>
-    setFields((f) => ({ ...f, [name]: value }));
+  const setField = (name: string, value: string) => setFields((f) => ({ ...f, [name]: value }));
 
   async function save() {
     if (!noteId) return;

@@ -71,12 +71,7 @@ export default function EditDeckScreen() {
     <Screen padded={false}>
       <Stack.Screen options={{ title: t('deckForm.titleEdit') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <TextField
-          label={t('deckForm.name')}
-          value={name}
-          onChangeText={setName}
-          autoFocus
-        />
+        <TextField label={t('deckForm.name')} value={name} onChangeText={setName} autoFocus />
         <TextField
           label={t('deckForm.description')}
           value={description}

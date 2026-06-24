@@ -14,9 +14,7 @@ export const notes = sqliteTable('notes', {
     .notNull()
     .references(() => noteTypes.id, { onDelete: 'restrict' }),
   /** Field name → content (HTML/Markdown), stored as JSON. */
-  fields: text('fields', { mode: 'json' })
-    .notNull()
-    .$type<Record<string, string>>(),
+  fields: text('fields', { mode: 'json' }).notNull().$type<Record<string, string>>(),
   /** Tags, stored as a JSON array. */
   tags: text('tags', { mode: 'json' }).notNull().$type<string[]>().default([]),
   createdAt: integer('created_at')

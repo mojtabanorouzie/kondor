@@ -1,21 +1,13 @@
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Dimensions,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-  useColorScheme,
-} from 'react-native';
+import { Dimensions, FlatList, Pressable, StyleSheet, View, useColorScheme } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useSettings } from '@/store/settings';
 
 const PRIMARY = '#208AEF';
-import { useDatabase } from '@/db';
-import { settingsRepository } from '@/db/repositories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -27,7 +19,7 @@ const SLIDES = [
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
-  const db = useDatabase();
+  const { completeOnboarding } = useSettings();
   const [index, setIndex] = useState(0);
   const listRef = useRef<FlatList>(null);
   const scheme = useColorScheme();
@@ -35,8 +27,8 @@ export default function OnboardingScreen() {
 
   const isLast = index === SLIDES.length - 1;
 
-  async function finish() {
-    await settingsRepository.set(db, 'hasSeenOnboarding', '1');
+  function finish() {
+    completeOnboarding();
     router.replace('/');
   }
 
@@ -66,10 +58,7 @@ export default function OnboardingScreen() {
             <ThemedText type="title" style={styles.title}>
               {t(item.titleKey)}
             </ThemedText>
-            <ThemedText
-              type="default"
-              themeColor="textSecondary"
-              style={styles.body}>
+            <ThemedText type="default" themeColor="textSecondary" style={styles.body}>
               {t(item.bodyKey)}
             </ThemedText>
           </View>
@@ -79,10 +68,7 @@ export default function OnboardingScreen() {
       {/* Dot indicators */}
       <View style={styles.dots}>
         {SLIDES.map((_, i) => (
-          <View
-            key={i}
-            style={[styles.dot, i === index && styles.dotActive]}
-          />
+          <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
         ))}
       </View>
 

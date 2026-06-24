@@ -61,11 +61,7 @@ function addDays(ms: number, n: number): number {
 }
 
 /** Zero-filled day series ending on `endMs`'s day, `length` days long. */
-function daySeries(
-  counts: Map<string, number>,
-  endMs: number,
-  length: number,
-): DayCount[] {
+function daySeries(counts: Map<string, number>, endMs: number, length: number): DayCount[] {
   const out: DayCount[] = [];
   const end = startOfDay(endMs);
   for (let i = length - 1; i >= 0; i--) {
@@ -102,11 +98,7 @@ export function computeRetention(logs: ReviewLogWithDeck[]): number | null {
   return Math.round((passed / mature.length) * 100);
 }
 
-export function computeForecast(
-  cards: CardRow[],
-  now: number,
-  days: number,
-): DayCount[] {
+export function computeForecast(cards: CardRow[], now: number, days: number): DayCount[] {
   const counts = new Map<string, number>();
   for (const c of cards) {
     if (c.state === CardState.New) continue; // new cards aren't "scheduled"

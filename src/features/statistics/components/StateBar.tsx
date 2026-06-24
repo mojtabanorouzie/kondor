@@ -15,8 +15,7 @@ const SEGMENTS: { key: keyof Statistics['byState']; labelKey: string; color: str
 /** Horizontal stacked bar of cards by scheduling state, with a legend. */
 export function StateBar({ byState }: { byState: Statistics['byState'] }) {
   const { t } = useTranslation();
-  const total =
-    byState.new + byState.learning + byState.review + byState.relearning;
+  const total = byState.new + byState.learning + byState.review + byState.relearning;
 
   return (
     <View style={styles.container}>
@@ -26,10 +25,7 @@ export function StateBar({ byState }: { byState: Statistics['byState'] }) {
         ) : (
           SEGMENTS.map((s) =>
             byState[s.key] > 0 ? (
-              <View
-                key={s.key}
-                style={{ flex: byState[s.key], backgroundColor: s.color }}
-              />
+              <View key={s.key} style={{ flex: byState[s.key], backgroundColor: s.color }} />
             ) : null,
           )
         )}

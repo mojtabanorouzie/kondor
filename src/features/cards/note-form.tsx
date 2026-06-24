@@ -17,15 +17,9 @@ const FIELD_LABEL: Record<string, string> = {
 };
 
 /** Whether the required fields for a kind are filled. */
-export function isNoteValid(
-  kind: NoteKind,
-  fields: Record<string, string>,
-): boolean {
+export function isNoteValid(kind: NoteKind, fields: Record<string, string>): boolean {
   if (kind === 'cloze') return (fields.Text ?? '').trim().length > 0;
-  return (
-    (fields.Front ?? '').trim().length > 0 &&
-    (fields.Back ?? '').trim().length > 0
-  );
+  return (fields.Front ?? '').trim().length > 0 && (fields.Back ?? '').trim().length > 0;
 }
 
 export function KindToggle({

@@ -73,10 +73,7 @@ export interface ParsedCard {
  * Turn delimited text into front/back pairs. Pure — the caller persists them.
  * Rows without both columns filled are skipped.
  */
-export function parseCardRows(
-  text: string,
-  options: CsvImportOptions = {},
-): ParsedCard[] {
+export function parseCardRows(text: string, options: CsvImportOptions = {}): ParsedCard[] {
   const delimiter = options.delimiter ?? detectDelimiter(text);
   const front = options.frontColumn ?? 0;
   const back = options.backColumn ?? 1;
