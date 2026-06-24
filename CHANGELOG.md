@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/); versioning foll
 ## [Unreleased]
 
 ### Added
+- **Phase 9 — Sync (engine):** an offline-first, conflict-resolving sync engine.
+  A pure last-write-wins `mergeSnapshots` (decks/notes/cards by `updatedAt`,
+  note-types/review-logs unioned by id) that converges and is idempotent; a
+  backend-agnostic `SyncBackend` interface with three implementations (in-memory
+  for tests, localStorage for a no-server web demo, and a REST reference client);
+  and a `sync(db, backend)` engine. Added `cards.updated_at` (migration 0004) for
+  LWW, a Sync section in Settings, and ADR-0002. 5 new tests incl. two-device
+  convergence (56 total). Auth/tombstones/deltas are documented follow-ups.
 - **Phase 8 — Polish, i18n & theming:** full **English + Persian** localization
   (i18next + expo-localization) with automatic **RTL** layout for Persian; a
   light/dark **theme** preference (System/Light/Dark); a real Settings screen

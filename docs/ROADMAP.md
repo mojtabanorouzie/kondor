@@ -156,12 +156,17 @@ switch to Dark applies instantly; both persist. Remaining items are release-prep
 ## Phase 9 — Sync & Accounts (optional cloud)
 *Goal: multi-device, local-first sync.*
 
-- [ ] Choose backend (Supabase / custom) — see ADR
-- [ ] Auth (email + OAuth)
-- [ ] Conflict-resolving sync of decks/cards/logs
-- [ ] Offline-first reconciliation
+- [x] Backend decision recorded — see [ADR-0002](adr/0002-sync-architecture.md)
+- [x] Conflict-resolving sync of decks/cards/logs (LWW merge, pure & tested)
+- [x] Offline-first reconciliation (snapshot merge; converges, idempotent)
+- [x] Pluggable `SyncBackend` (memory for tests, localStorage for web, REST reference)
+- [x] Sync UI in Settings; tests incl. two-device convergence
+- [ ] Auth (email + OAuth) — seam in place (REST bearer token); needs a backend
+- [ ] Deletion tombstones + delta protocol — follow-ups (see ADR)
 
-**Done when:** the same account stays in sync across two devices.
+**Done when:** the same account stays in sync across two devices. ✅ (engine)
+Verified: two-device convergence test passes; "Sync now" round-trips on web.
+Real multi-device needs deploying the REST backend (or Supabase) — see ADR.
 
 ---
 

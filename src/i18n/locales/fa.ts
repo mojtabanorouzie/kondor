@@ -104,6 +104,11 @@ export const fa: TranslationSchema = {
   },
   settings: {
     title: 'تنظیمات',
+    sync: 'همگام‌سازی',
+    syncDesc:
+      'مجموعهٔ خود را با حافظهٔ مرورگر پشتیبان و ادغام کنید. برای همگام‌سازی واقعیِ چنددستگاهی، کُندُر را به سرور خودتان وصل کنید.',
+    syncNow: 'همگام‌سازی اکنون',
+    syncDone: '{{cards}} کارت همگام شد',
     appearance: 'ظاهر',
     themeSystem: 'سیستم',
     themeLight: 'روشن',

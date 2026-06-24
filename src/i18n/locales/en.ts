@@ -102,6 +102,11 @@ export const en = {
   },
   settings: {
     title: 'Settings',
+    sync: 'Sync',
+    syncDesc:
+      'Back up and merge your collection with browser storage. Point Kondor at your own server for true multi-device sync.',
+    syncNow: 'Sync now',
+    syncDone: '{{cards}} cards synced',
     appearance: 'Appearance',
     themeSystem: 'System',
     themeLight: 'Light',

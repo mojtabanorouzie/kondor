@@ -29,6 +29,13 @@
       "when": 1782257340779,
       "tag": "0003_groovy_wolverine",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1782301457609,
+      "tag": "0004_striped_marvel_apes",
+      "breakpoints": true
     }
   ]
 }

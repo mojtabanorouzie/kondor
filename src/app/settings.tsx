@@ -22,6 +22,7 @@ import {
   saveTextFile,
   serializeBackup,
 } from '@/services/import-export';
+import { localStorageBackend, sync } from '@/services/sync';
 import {
   useSettings,
   type LanguageSetting,
@@ -99,6 +100,12 @@ export default function SettingsScreen() {
       return `${res.notes} → “${baseName(picked.name)}”`;
     });
 
+  const syncHandler = () =>
+    run(async () => {
+      const res = await sync(db, localStorageBackend());
+      return t('settings.syncDone', { cards: res.cards });
+    });
+
   return (
     <Screen padded={false}>
       <Stack.Screen options={{ title: t('settings.title') }} />
@@ -124,6 +131,14 @@ export default function SettingsScreen() {
               { value: 'en', label: 'English' },
               { value: 'fa', label: 'فارسی' },
             ]}
+          />
+        </Section>
+
+        <Section title={t('settings.sync')} subtitle={t('settings.syncDesc')}>
+          <Button
+            title={t('settings.syncNow')}
+            onPress={syncHandler}
+            disabled={busy}
           />
         </Section>
 

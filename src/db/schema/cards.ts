@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { decks } from './decks';
@@ -31,6 +32,10 @@ export const cards = sqliteTable('cards', {
   learningSteps: integer('learning_steps').notNull().default(0),
   /** Last review time (epoch ms), if ever reviewed. */
   lastReviewedAt: integer('last_reviewed_at'),
+  /** Epoch ms of the last mutation — used for last-write-wins sync. */
+  updatedAt: integer('updated_at')
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
 });
 
 export type CardRow = typeof cards.$inferSelect;

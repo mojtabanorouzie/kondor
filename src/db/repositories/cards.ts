@@ -93,7 +93,7 @@ export const cardRepository = {
       .orderBy(cards.due);
   },
 
-  /** Persist updated scheduling state after a review. */
+  /** Persist updated scheduling state after a review. Bumps `updatedAt`. */
   async update(
     db: Database,
     id: string,
@@ -101,7 +101,7 @@ export const cardRepository = {
   ): Promise<CardRow | undefined> {
     const [row] = await db
       .update(cards)
-      .set(patch)
+      .set({ ...patch, updatedAt: Date.now() })
       .where(eq(cards.id, id))
       .returning();
     return row;
