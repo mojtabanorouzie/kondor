@@ -36,12 +36,12 @@ jobs:
       - name: Generate native Android project
         run: npx expo prebuild --platform android --no-install
 
-      - name: Build debug APK
+      - name: Build release APK (JS bundled in; signed with default debug keystore)
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk Kondor.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk Kondor.apk
 
       - uses: actions/upload-artifact@v4
         with:
