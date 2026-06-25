@@ -36,12 +36,20 @@ jobs:
       - name: Generate native Android project
         run: npx expo prebuild --platform android --no-install
 
-      - name: Limit native libs to real phone CPUs (drop emulator x86/x86_64)
+      - name: Tune Gradle build (slim ABIs + raise JVM memory to avoid Metaspace OOM)
         run: |
+          # Build native libs only for real phone CPUs (drop emulator x86/x86_64)
           if grep -q '^reactNativeArchitectures=' android/gradle.properties; then
             sed -i 's/^reactNativeArchitectures=.*/reactNativeArchitectures=arm64-v8a,armeabi-v7a/' android/gradle.properties
           else
             echo 'reactNativeArchitectures=arm64-v8a,armeabi-v7a' >> android/gradle.properties
+          fi
+          # Give Gradle/Kotlin/lint enough heap + metaspace (default 512m metaspace OOMs)
+          JVMARGS='org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=2048m -Dfile.encoding=UTF-8'
+          if grep -q '^org.gradle.jvmargs=' android/gradle.properties; then
+            sed -i "s|^org.gradle.jvmargs=.*|$JVMARGS|" android/gradle.properties
+          else
+            echo "$JVMARGS" >> android/gradle.properties
           fi
 
       - name: Build release APK (JS bundled in; signed with default debug keystore)
