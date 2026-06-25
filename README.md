@@ -117,6 +117,26 @@ npm run format:check # Prettier check
 
 ---
 
+## Downloads
+
+Every version tag (`v*`) triggers [`release.yml`](.github/workflows/release.yml), which attaches
+direct-download artifacts to that [GitHub Release](https://github.com/mojtabanorouzie/kondor/releases) —
+no app store account needed:
+
+| Platform | Artifact | Notes |
+|---|---|---|
+| Android | `Kondor.apk` | Debug-keystore signed; enable "install unknown apps" to sideload |
+| Windows | `Kondor_x64-setup.exe` | PWA wrapped in Tauri; NSIS installer |
+
+A separate tag-triggered workflow ([`deploy-pwa.yml`](.github/workflows/deploy-pwa.yml)) publishes
+the installable PWA to GitHub Pages — the easiest way to get Kondor on iOS, since Safari's
+"Add to Home Screen" needs no signing or sideloading at all.
+
+Real App Store / Play Store listings are a separate, manual path via EAS (`eas.json`) — see the
+submission steps in [docs/ROADMAP.md](docs/ROADMAP.md#phase-10--release--operations).
+
+---
+
 ## Self-Hosted Sync Server
 
 A lightweight Fastify server lives in `server/`. It handles multi-user JWT auth, OAuth (Google + GitHub), and delta sync.

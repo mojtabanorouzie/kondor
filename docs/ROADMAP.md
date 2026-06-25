@@ -173,7 +173,15 @@ Real multi-device needs deploying the REST backend (or Supabase) — see ADR.
 ## Phase 10 — Release & Operations
 *Goal: ship and keep shipping.*
 
-- [x] EAS Build + EAS Submit pipelines (`eas.json` submit config for iOS + Android)
+- [x] EAS Build + EAS Submit pipelines (`eas.json` submit config for iOS + Android) —
+      manual path to the real App Store / Play Store listings (see submission steps below)
+- [x] `.github/workflows/release.yml` — on every `v*` tag push, builds and attaches direct-
+      download artifacts to a GitHub Release: an Android APK (debug-keystore signed) and
+      a Windows installer (PWA wrapped in Tauri, NSIS `.exe`). This is independent of, and
+      faster than, the EAS/store path.
+- [x] `.github/workflows/ci.yml` — lint + typecheck + format check + test on push/PR
+- [x] `.github/workflows/deploy-pwa.yml` — builds the static web export and deploys it to
+      GitHub Pages on every `v*` tag push
 - [x] Privacy policy screen (in-app `/privacy`, linked from Settings → About)
 - [x] Error boundary wrapping entire app tree (friendly "Try again" + crash mailto)
 - [x] OTA updates (`expo-updates`): "Check for updates" in Settings, `runtimeVersion`
