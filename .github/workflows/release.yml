@@ -36,6 +36,14 @@ jobs:
       - name: Generate native Android project
         run: npx expo prebuild --platform android --no-install
 
+      - name: Limit native libs to real phone CPUs (drop emulator x86/x86_64)
+        run: |
+          if grep -q '^reactNativeArchitectures=' android/gradle.properties; then
+            sed -i 's/^reactNativeArchitectures=.*/reactNativeArchitectures=arm64-v8a,armeabi-v7a/' android/gradle.properties
+          else
+            echo 'reactNativeArchitectures=arm64-v8a,armeabi-v7a' >> android/gradle.properties
+          fi
+
       - name: Build release APK (JS bundled in; signed with default debug keystore)
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
