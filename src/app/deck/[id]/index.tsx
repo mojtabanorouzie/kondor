@@ -79,6 +79,12 @@ export default function DeckScreen() {
                   onPress={() => router.push(`/deck/${id}/edit`)}
                   style={styles.flex}
                 />
+                <Button
+                  title={t('deck.import')}
+                  variant="secondary"
+                  onPress={() => router.push(`/deck/${id}/import`)}
+                  style={styles.flex}
+                />
               </View>
             </View>
           }
