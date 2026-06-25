@@ -180,8 +180,8 @@ Real multi-device needs deploying the REST backend (or Supabase) — see ADR.
       a Windows installer (PWA wrapped in Tauri, NSIS `.exe`). This is independent of, and
       faster than, the EAS/store path.
 - [x] `.github/workflows/ci.yml` — lint + typecheck + format check + test on push/PR
-- [x] `.github/workflows/deploy-pwa.yml` — builds the static web export and deploys it to
-      GitHub Pages on every `v*` tag push
+- [x] `release.yml` also builds the static web export and deploys it to GitHub Pages
+      (`pwa` + `deploy-pages` jobs) on every `v*` tag push
 - [x] Privacy policy screen (in-app `/privacy`, linked from Settings → About)
 - [x] Error boundary wrapping entire app tree (friendly "Try again" + crash mailto)
 - [x] OTA updates (`expo-updates`): "Check for updates" in Settings, `runtimeVersion`

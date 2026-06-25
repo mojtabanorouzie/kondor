@@ -128,9 +128,9 @@ no app store account needed:
 | Android | `Kondor.apk` | Debug-keystore signed; enable "install unknown apps" to sideload |
 | Windows | `Kondor_x64-setup.exe` | PWA wrapped in Tauri; NSIS installer |
 
-A separate tag-triggered workflow ([`deploy-pwa.yml`](.github/workflows/deploy-pwa.yml)) publishes
-the installable PWA to GitHub Pages — the easiest way to get Kondor on iOS, since Safari's
-"Add to Home Screen" needs no signing or sideloading at all.
+The same workflow also publishes the installable PWA to GitHub Pages (the `pwa` / `deploy-pages`
+jobs) — the easiest way to get Kondor on iOS, since Safari's "Add to Home Screen" needs no
+signing or sideloading at all.
 
 Real App Store / Play Store listings are a separate, manual path via EAS (`eas.json`) — see the
 submission steps in [docs/ROADMAP.md](docs/ROADMAP.md#phase-10--release--operations).

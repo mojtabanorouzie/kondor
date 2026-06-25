@@ -105,6 +105,59 @@ jobs:
           path: Kondor_x64-setup.exe
 
   # ---------------------------------------------------------------------------
+  # PWA: export the static web build and deploy it to GitHub Pages.
+  # Uses `npm install` (not `npm ci`) to match the android/windows jobs and to
+  # tolerate cross-platform optional-dependency drift in package-lock.json.
+  # ---------------------------------------------------------------------------
+  pwa:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Export static web build (PWA)
+        run: npm run export:web
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy-pages:
+    needs: pwa
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    # Serialise Pages deployments without blocking the APK/EXE jobs.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ---------------------------------------------------------------------------
   # Publish: attach both artifacts to a GitHub Release for the tag
   # ---------------------------------------------------------------------------
   release:
