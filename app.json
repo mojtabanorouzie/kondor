@@ -67,7 +67,8 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": true,
+      "baseUrl": "/kondor"
     },
     "extra": {
       "router": {},

@@ -10,6 +10,14 @@
 
 const CACHE_NAME = 'kondor-v1';
 
+/**
+ * App base path, derived from where this worker is served. Under GitHub Pages
+ * the worker lives at /kondor/sw.js, so BASE === '/kondor/'; at the domain root
+ * it is '/'. Keeping the shell URLs relative to BASE lets the same worker run
+ * at any subpath without hard-coding it.
+ */
+const BASE = self.location.pathname.replace(/sw\.js$/, '');
+
 /** URL prefixes that should always go to the network first. */
 const NETWORK_FIRST_PATTERNS = ['/sync', '/auth', '/health'];
 
@@ -21,8 +29,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
       cache.addAll([
-        '/',
-        '/index.html',
+        BASE,
+        BASE + 'index.html',
       ]).catch(() => {
         // Non-fatal if index.html isn't available at install time (first build).
       }),
@@ -86,7 +94,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() => {
           // Offline fallback: return cached root for navigation requests.
           if (request.mode === 'navigate') {
-            return caches.match('/') ?? new Response('', { status: 503 });
+            return caches.match(BASE) ?? new Response('', { status: 503 });
           }
           return new Response('', { status: 503 });
         });

@@ -8,6 +8,10 @@ import type { PropsWithChildren } from 'react';
  * The service worker itself lives at public/sw.js (copied verbatim to dist/).
  */
 export default function Root({ children }: PropsWithChildren) {
+  // When hosted under a subpath (e.g. GitHub Pages at /kondor), Expo's
+  // experiments.baseUrl is exposed here so our hand-written static asset links
+  // resolve correctly. Empty string when served from the domain root.
+  const base = process.env.EXPO_BASE_URL ?? '';
   return (
     <html lang="en">
       <head>
@@ -17,10 +21,10 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="theme-color" content="#208AEF" />
 
         {/* PWA manifest — file exists at public/manifest.json (copied verbatim to dist/) */}
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href={`${base}/manifest.json`} />
 
         {/* PWA icons — files exist at public/icon-192.png and public/icon-512.png */}
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href={`${base}/icon-192.png`} />
 
         {/* Reset scroll-view styles for full-screen RN Web apps */}
         <ScrollViewStyleReset />
@@ -32,7 +36,7 @@ export default function Root({ children }: PropsWithChildren) {
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function () {
                   navigator.serviceWorker
-                    .register('/sw.js')
+                    .register('${base}/sw.js')
                     .catch(function (err) {
                       console.warn('[SW] registration failed:', err);
                     });

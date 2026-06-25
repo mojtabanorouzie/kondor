@@ -14,13 +14,17 @@ let sqlPromise: Promise<SqlJsStatic> | null = null;
 
 /**
  * Load sql.js. In Node (tests) it finds the WASM via the filesystem. On web
- * the WASM is served from /sql-wasm.wasm — copied from node_modules into
- * public/ by `npm run copy-wasm` (or `npm run export:web`) so Anki import
- * works fully offline without any CDN dependency.
+ * the WASM is served from <baseUrl>/sql-wasm.wasm — copied from node_modules
+ * into public/ by `npm run copy-wasm` (or `npm run export:web`) so Anki import
+ * works fully offline without any CDN dependency. The baseUrl prefix lets it
+ * resolve when the site is hosted under a subpath (e.g. GitHub Pages /kondor).
  */
 function loadSqlJs(): Promise<SqlJsStatic> {
   if (!sqlPromise) {
-    sqlPromise = initSqlJs(Platform.OS === 'web' ? { locateFile: (f) => `/${f}` } : undefined);
+    const base = process.env.EXPO_BASE_URL ?? '';
+    sqlPromise = initSqlJs(
+      Platform.OS === 'web' ? { locateFile: (f) => `${base}/${f}` } : undefined,
+    );
   }
   return sqlPromise;
 }
