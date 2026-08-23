@@ -6,7 +6,9 @@ on:
   pull_request:
 
 jobs:
-  verify:
+  # The Expo app: typecheck, lint, and the 10 Jest suites under __tests__/.
+  app:
+    name: App (Expo / React Native)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,14 +18,44 @@ jobs:
           node-version: 24
           cache: npm
 
+      # `npm ci` is avoided deliberately: package-lock.json carries
+      # platform-specific optional dependencies that drift between the
+      # maintainer's machine and a clean checkout, so `npm ci` aborts with
+      # e.g. "lock file's @emnapi/wasi-threads@1.2.2 does not satisfy 1.2.3".
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Lint
         run: npm run lint
 
       - name: Test
-        run: npm test --if-present
+        run: npm test
+
+  # The self-hosted sync server is a separate npm package with its own
+  # lockfile and tsconfig, so it needs its own install and its own job.
+  server:
+    name: Sync server (Fastify)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
