@@ -31,7 +31,16 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+# `.env*.local` alone did not cover `server/.env`, which is exactly what
+# server/.env.example tells you to create — and it holds JWT_SECRET plus the
+# Google/GitHub OAuth client secrets. Ignore every .env except the examples.
+.env
+.env.*
+!.env.example
+
+# EAS submit credentials — eas.json points `serviceAccountKeyPath` at this
+# file; it is a Google Cloud service-account private key.
+google-service-account.json
 
 # typescript
 *.tsbuildinfo
