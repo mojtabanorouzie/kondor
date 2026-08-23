@@ -19,9 +19,9 @@ jobs:
           cache: npm
 
       # `npm ci` is avoided deliberately: package-lock.json carries
-      # platform-specific optional dependencies (esbuild/emnapi native
-      # binaries) that drift between the maintainer's Windows machine and
-      # this Linux runner, which makes `npm ci` fail on a clean checkout.
+      # platform-specific optional dependencies that drift between the
+      # maintainer's machine and a clean checkout, so `npm ci` aborts with
+      # e.g. "lock file's @emnapi/wasi-threads@1.2.2 does not satisfy 1.2.3".
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
