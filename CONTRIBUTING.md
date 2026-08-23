@@ -5,11 +5,14 @@
 1. Pick the next unchecked item from [docs/ROADMAP.md](docs/ROADMAP.md).
 2. Create a branch: `feat/<short-name>`, `fix/<short-name>`, or `docs/<short-name>`.
 3. Implement with tests. Keep changes scoped to one roadmap item where possible.
-4. Run locally before pushing:
+4. Run locally before pushing. CI runs these as two jobs — the app and the sync server — so
+   run both if you touched `server/`:
    ```bash
    npm run lint
-   npx tsc --noEmit
+   npm run typecheck
    npm test
+
+   cd server && npm run typecheck && npm test
    ```
 5. Open a PR. CI must be green.
 6. On merge: check the box in ROADMAP.md and add a CHANGELOG entry.
